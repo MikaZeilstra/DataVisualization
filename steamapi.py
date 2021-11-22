@@ -2,7 +2,6 @@ import requests
 import json
 
 from lxml import etree
-from collections import defaultdict
 
 
 Steam_groups = [{
