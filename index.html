@@ -1,10 +1,104 @@
  <!DOCTYPE html>
-<html>
-<head>
-<title>Page Title</title>
-</head>
-<body>
+ <html>
 
-<h1>Data Visualization Project 1 Group 50</h1>
-</body>
-</html> 
+ <head>
+     <title>Page Title</title>
+     <script source="https://goessner.net/download/prj/jsonxml/xml2json.js" async=false></script>
+     <script>
+
+         Default_data = []
+         Steam_groups = [{
+                 Name: "US",
+                 Group_ID: "103582791453709703",
+                 Members: []
+             },
+             {
+                 Name: "DE",
+                 Group_ID: "103582791430396700",
+                 Members: []
+             },
+             {
+                 Name: "NL",
+                 Group_ID: "103582791429524490",
+                 Members: []
+             },
+             {
+                 Name: "FR",
+                 Group_ID: "103582791433685117",
+                 Members: []
+             },
+             {
+                 Name: "UK",
+                 Group_ID: "103582791429829491",
+                 Members: []
+             },
+             {
+                 Name: "BR",
+                 Group_ID: "103582791429970582",
+                 Members: []
+             },
+             {
+                 Name: "PO",
+                 Group_ID: "103582791429526392",
+                 Members: []
+             },
+             {
+                 Name: "RU",
+                 Group_ID: "103582791429551180",
+                 Members: []
+             },
+             {
+                 Name: "IT",
+                 Group_ID: "103582791435681262",
+                 Members: []
+             },
+             {
+                 Name: "AU",
+                 Group_ID: "103582791429529819",
+                 Members: []
+             },
+             {
+                 Name: "SK",
+                 Group_ID: "103582791430868052",
+                 Members: []
+             },
+             {
+                 Name: "SA",
+                 Group_ID: "103582791429568891",
+                 Members: []
+             }
+         ]
+
+         Api_key = "";
+
+         function SaveAPIKey() {
+             Api_key = document.getElementById("steamAPI").value;
+         }
+
+         function GetSteamGroups() {
+
+
+             for (const element of Steam_groups) {
+                 url = 'http://steamcommunity.com/gid/' + element.Group_ID + '/memberslistxml/?xml=1'
+                 fetch(url,{
+                    
+
+                 }).then(function (response) {
+                     console.log(response);
+                     const json = xml2json(xml);
+                 }).catch(function () {
+                     console.log("Error");
+                 });
+             }
+         }
+     </script>
+ </head>
+
+ <body>
+
+     <h1>Data Visualization Project 1 Group 50</h1>
+     <div>Please input steamAPI key <input type="text" id="steamAPI"><input type="submit" id="submitKey"
+             onclick="SaveAPIKey()"><input type="submit" onclick="GetSteamGroups()"> </div>
+ </body>
+
+ </html>
