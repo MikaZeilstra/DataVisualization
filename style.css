@@ -1,0 +1,47 @@
+#page_header{
+    height : 10vh;
+    width : 100vw;
+    text-align: center;   
+}
+
+
+#game_input_wrapper{
+    width : 100vw;
+    height : 5vh;
+
+}
+
+#game_input{
+    width: 50%;
+    margin: auto;
+}
+
+.bar_playing_time{
+    width : 20vw;
+    height : 30vh;
+}
+
+.bar_apply_margin{
+    --margin_x : 1vw;
+    --margin_y : 1vh;
+    transform : translate(var(--margin_x),var(--margin_y));
+}
+
+/*Tooltip stolen https://stackoverflow.com/questions/7117073/add-a-tooltip-to-a-div cab be reused for hover over element*/
+/* Tooltip text */
+
+[error-tooltip]:before {
+    /* needed - do not touch */
+    content: attr(error-tooltip);
+    position: absolute;    
+    /* customizable */
+    transition: all 0.15s ease;
+    padding: 1vw 1vh;
+    color: #333;
+    border-radius: 10px;
+    
+    /* customizable */
+    background: crimson;
+    margin-top: -8vh;
+    margin-left: 0;    
+}
