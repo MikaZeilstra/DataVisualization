@@ -1,0 +1,73 @@
+
+label {
+	display: block;
+}
+
+.optgroup-list-wrapper {
+	position: relative;
+}
+
+input[data-optgroup-list] + datalist + .list-options {
+    z-index: 1;
+    background-color: white;
+    background-color: white;
+	font-size: smaller;
+	outline: 1px solid #72acea;
+	padding: .5rem 0;
+	line-height: 1.75;
+    max-height: 30vh;
+	position: absolute;
+    overflow: auto;
+}
+
+input[data-optgroup-list] + datalist + .list-options summary {
+	color: #777784;
+	line-height: 1;
+	display: block;
+	width: 100%;
+}
+
+input[data-optgroup-list] + datalist + .list-options summary::-webkit-details-marker {
+	fill: #777784;
+}
+
+input[data-optgroup-list] + datalist + .list-options ul {
+	margin: 0;
+	padding: 0;
+}
+
+input[data-optgroup-list] + datalist + .list-options > ul > li:not(:last-child) {
+	padding-bottom: .5rem;
+}
+
+input[data-optgroup-list] + datalist + .list-options > ul .option {
+	padding: 0 .5rem;
+}
+
+input[data-optgroup-list] + datalist + .list-options > ul .option:hover {
+	background: #b8d6fe;
+}
+
+input[data-optgroup-list] + datalist + .list-options > ul ul li {
+	padding-left: 1rem;
+}
+
+input[data-optgroup-list] + datalist + .list-options > ul ul li:not([hidden]) {
+	display: flex;
+}
+
+input[data-optgroup-list] + datalist + .list-options > ul ul li span:first-child {
+	margin-right: 3ch;
+	font-weight: bolder;
+}
+
+input[data-optgroup-list] + datalist + .list-options > ul ul li span:last-child {
+	text-align: right;
+	margin-left: auto;
+	color: #777784;
+	font-weight: lighter;
+}
+
+input[data-optgroup-list] + datalist + .list-options ul {
+	list-style-type: none;
+}

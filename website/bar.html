@@ -129,9 +129,6 @@
                 document.getElementById("game_input").setAttribute("error-tooltip",
                     "Please only select items fromt the list")
             }
-
-
-
         }
     </script>
 
@@ -146,7 +143,9 @@
             <input list="search_options" id="game_input_field" type="select"></input>
             <input type="submit" value="Go">
             <datalist id="search_options">
-
+                <optgroup id="search_options_games"></optgroup>
+                <optgroup id="search_options_genre"></optgroup>
+                <optgroup id="search_options_country"></optgroup>
             </datalist>
         </form>
     </div>
