@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+
+
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://d3js.org/d3.v7.js"></script>
+    <script>
+        //Groups for which we have data
+        const groups = ["US", "DE", "NL", "FR", "UK", "BR", "PO", "RU", "IT", "AU", "SK", "SA"];
+        //The default game on loading this page.
+        const default_game = "Halo Infinite";
+
+        //Global vars for holding jsons and update functions
+        var games_json, update_bar_chart = undefined;
+
+
+        //Updates the page to display the data for a given Game
+        function update_page_to_game(game) {
+            let game_names = Object.keys(games_json);
+
+            let option_list = d3.select("#search_options")
+            for (const game of game_names) {
+                option_list.append("option").attr("value", game)
+            }
+
+            d3.select("#game_input").attr("onsubmit", "handle_game_submit()")
+
+            update_bar_chart(games_json[game]["user_count"]);
+
+
+            d3.select("#page_header").html(game);
+        }
+
+        //When the document is loaded update the page to the starting page.
+        document.addEventListener("DOMContentLoaded", () => {
+            update_bar_chart = create_bar_chart("#svg_bar_chart")
+            d3.json("/GamesGenre.json").then(function (data) {
+                games_json = data;
+
+                update_page_to_game(default_game);
+
+                //Stop the form from refreshing the page
+                var form = document.getElementById("game_input").addEventListener('submit', (e) => e
+                    .preventDefault());
+            });
+        });
+
+        //This function creates setsup the bar chart by providing a update function
+        function create_bar_chart(selector) {
+            //Set the viewport and margins
+            const viewport_width = 300;
+            const viewport_height = 200;
+
+            const margin_left = 30;
+            const margin_top = 30;
+
+
+            const svg = d3.select(selector);
+
+            svg.attr("viewBox", `0 0 ${viewport_width} ${viewport_height}`);
+
+            const width = viewport_width - 2 * margin_left;
+            const height = viewport_height - 2 * margin_top;
+
+            //Make the group element which contains the bars
+            const g = svg.append('g')
+                .attr('transform', `translate(${margin_left} , ${margin_top})`);
+
+
+            //Create axes which fit our box exactly
+            const xscale = d3.scaleBand().range([0, width]);
+            const yscale = d3.scaleLinear().range([0, height]);
+
+            const xaxis = d3.axisBottom().scale(xscale);
+            const g_xaxis = g.append('g').attr('class', 'x axis');
+            const yaxis = d3.axisLeft().scale(yscale).tickFormat(function (e) {
+                if (Math.floor(e) != e) {
+                    return;
+                }
+
+                return e;
+            });
+            const g_yaxis = g.append('g').attr('class', 'y axis');
+
+            //Update function to be retured
+            function update(new_data) {
+
+                //Create the axis with the new data.
+                xscale.domain(groups).padding(0.1);
+                yscale.domain([d3.max(new_data), 0]);
+
+
+                g_xaxis.transition().attr("transform", "translate(0," + height + ")").call(xaxis);
+                g_yaxis.transition().call(yaxis);
+
+
+                //Get bars and add bars if required
+                const bars = g.selectAll("rect").data(new_data);
+
+                const bar_enter = bars.enter().append("rect")
+                    .attr('x', (d) => xscale(groups[new_data.indexOf(d)]))
+                    .attr('y', height)
+                    .attr('width', xscale.bandwidth())
+                    .attr('height', 0);
+
+                //Set the correct values for all the bars
+                bars.merge(bar_enter).transition()
+                    .attr('height', (d) => (height - yscale(d)))
+                    .attr("y", (d) => (yscale(d)))
+                    .attr('width', xscale.bandwidth())
+                    .attr('x', (d) => xscale(groups[new_data.indexOf(d)]))
+
+                //Remove unecesary bars
+                bars.exit().remove();
+
+            }
+            return update;
+        }
+
+        function handle_game_submit() {
+            let new_game = document.getElementById("game_input_field").value
+
+            if (Object.keys(games_json).includes(new_game)) {
+                document.getElementById("game_input").removeAttribute("error-tooltip");
+                update_page_to_game(new_game);
+            } else {
+                document.getElementById("game_input").setAttribute("error-tooltip",
+                    "Please only select items fromt the list")
+            }
+
+
+
+        }
+    </script>
+
+</head>
+
+<body>
+    <div id="page_header_wrapper">
+        <h1 id="page_header"></h1>
+    </div>
+    <div id="game_input_wrapper">
+        <form id="game_input">
+            <input list="search_options" id="game_input_field" type="select"></input>
+            <input type="submit" value="Go">
+            <datalist id="search_options">
+
+            </datalist>
+        </form>
+    </div>
+
+
+
+    <div id="bar_chart"><svg id="svg_bar_chart" class="bar_chart bar_playing_time">test</svg></div>
+</body>
+
+</html>
