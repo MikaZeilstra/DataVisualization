@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    </head>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://d3js.org/d3.v7.js" charset="utf-8"></script>
+    <body >
+      <div class="navbar">
+          <div class="dropdown">
+              <button class="dropbtn">Games</button>
+              <div id = "games" class="dropdown-content">
+              </div>
+          </div>
+          <div class="dropdown">
+              <button class="dropbtn">Genre</button>
+              <div id = "genre" class="dropdown-content">
+              </div>
+          </div>
+          <div class="dropdown">
+              <button class="dropbtn">Country Groups</button>
+              <div id = "c_groups" class="dropdown-content">
+              </div>
+          </div>
+          <input type="text" placeholder="Search..">
+      </div>
+      <div id = "main">
+
+      </div>
+      <script>
+          const params = new URLSearchParams(document.location.search);
+          const s = params.get("game_id");
+          console.log(s)
+      </script>
+  
+  
+  </body>
+  <script>
+
+  // Load data into the navigation bar
+  fetch('../UserIDs.json')
+  .then(response => response.json())
+  .then(function(result) {
+    var steam_groups = Object.keys(result)
+    for (let i = 0; i < steam_groups.length; i++) {
+        var el = document.createElement('a')
+        el.innerText = steam_groups[i]
+        el.onclick = function () { window.location = "#Group?g_code=" + steam_groups[i]
+     }
+        document.getElementById("c_groups").appendChild(el);
+    }})
+
+  fetch('../Games.json')
+  .then(response => response.json())
+  .then(data => {
+      var dict = {}
+      for (var key in data) {
+          dict[key] = data[key]["appid"]
+      }
+      return dict
+  })
+  .then(function(result) {
+    var steam_games = result
+    for (let [key, value] of Object.entries(steam_games)) {
+        var el = document.createElement('a')
+        el.innerText = key
+        el.onclick = function () { window.location = "#Game?game_id=" + value; load_graphs(value) }
+        document.getElementById("games").appendChild(el);
+    }
+  })
+  .catch(error => console.log(error));
+
+  fetch('../GenreData.json')
+  .then(response => response.json())
+  .then(function(result) {
+    var genres = Object.keys(result)
+    for (let i = 0; i < genres.length; i++) {
+        var el = document.createElement('a')
+        el.innerText = genres[i]
+        el.onclick = function () { window.location = "#Genre?genre=" + genres[i]
+     }
+        document.getElementById("genre").appendChild(el);
+    }})
+
+  function load_graphs(game_id) {
+    // Reset main
+    document.getElementById("main").innerHTML = ''
+
+      link = "https://cdn.akamai.steamstatic.com/steam/apps/" + game_id + "/header.jpg"
+      var elem = document.createElement("img");
+      elem.src = link
+      document.getElementById("main").appendChild(elem);
+      
+      link_desc = "../GamesDescriptions.json"
+
+      var desc = fetch(link_desc, {mode: 'cors'})
+      .then(response => response.json())
+      .then(function(result) { 
+        var elem = document.createElement("div")
+        elem.innerText = result[game_id]
+        document.getElementById("main").appendChild(elem)})
+      .catch(error => console.log(error));
+}
+
+  function filterData() {
+    // filter the raw data according to user selection
+  }
+
+  function wrangleData(filtered) {
+    // wrangles the given filtered data to the format required by the visualizations
+  }
+
+ 
+  function createBarChart() {
+    // https://codepen.io/sgratzl/pen/gObqdEG
+
+    function update(new_data) {
+    }
+
+    return update;
+  }
+
+  function createPieChart() {
+    // https://codepen.io/sgratzl/pen/BaaBBdZ
+
+    function update(new_data) {
+      // updates the specific visualization with the given data
+    }
+
+    // return the update function to be called
+    return update;
+  }
+
+  function createChoroplethChart() {
+    // https://codepen.io/sgratzl/pen/LYGbObX
+
+    function update(new_data) {
+      // updates the specific visualization with the given data
+    }
+
+    // return the update function to be called
+    return update;
+  }
+
+  function createStackedBarChart() {
+    // https://www.d3-graph-gallery.com/graph/barplot_stacked_basicWide.html
+
+    function update(new_data) {
+      // updates the specific visualization with the given data
+    }
+
+    // return the update function to be called
+    return update;
+  }
+
+
+//   // create a specific instance
+// //   const vis = createVis();
+
+//   function updateApp() {
+//     // updates the application
+
+//     const filtered = filterData();
+//     const new_data = wrangleData(filtered);
+
+//     // update visualization
+//     vis(new_data);
+//   }
+
+// //   // init interaction, e.g., listen to click events
+// //   d3.select(...).on('click', () => {
+// //     // update state
+// //     // Q1: createBarChart()
+// //     // Q2: createPieChart()
+// //     // Q3: createStackedBarChart()
+// //     // Q4: createChoroplethChart()
+// //     updateApp();
+// //   })
+
+//   d3.json("https://raw.githubusercontent.com/MikaZeilstra/DataVisualization/main/UserOwnedGames.json").then((data) => {
+//     console.log(data);
+//     state.data = data;
+//     updateApp();
+//   });
+</script>
+
+</body>
+</html>
