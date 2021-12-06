@@ -2,8 +2,8 @@
 <html>
 
 <head>
-  <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="polyfill.css">
+  <link rel="stylesheet" href="style.css">
   <script src="https://d3js.org/d3.v7.js"></script>
   <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
   <script>
@@ -16,27 +16,32 @@
         const listOptions = document.getElementById("list-options-search");
         let optList = document.createElement("ul");
         listOptions.appendChild(optList);
-        
+
         //Generate the polyfill list
-        for(let optgroup of Array.from(datalist.childNodes)){
-          if(optgroup.nodeName == "#text"){continue}
-          let details = optList.appendChild(document.createElement("li")).appendChild(document.createElement("details"));
-          details.setAttribute("open","true");
+        for (let optgroup of Array.from(datalist.childNodes)) {
+          if (optgroup.nodeName == "#text") {
+            continue
+          }
+          let details = optList.appendChild(document.createElement("li")).appendChild(document.createElement(
+            "details"));
+          details.setAttribute("open", "true");
           let groupName = document.createElement("summary");
           groupName.textContent = optgroup.getAttribute("label");
-          
+
 
           details.appendChild(groupName);
           let optgroupUl = document.createElement("ul");
-          for(let option of Array.from(optgroup.childNodes) ){
-            if(optgroup.nodeName == "#text"){continue}
+          for (let option of Array.from(optgroup.childNodes)) {
+            if (optgroup.nodeName == "#text") {
+              continue
+            }
             let optionName = option.getAttribute("value");
             let optionLi = document.createElement("li")
             optionLi.setAttribute("class", "option");
             optionLi.setAttribute("data-value", optionName);
-            
+
             let optionSpan = document.createElement("span");
-            optionSpan.setAttribute("class","value");
+            optionSpan.setAttribute("class", "value");
             optionSpan.textContent = optionName;
 
             optionLi.appendChild(optionSpan);
@@ -105,9 +110,6 @@
           list.value = el.dataset.value;
           listOptions.setAttribute('hidden', 'true');
         });
-
-
-
       });
     };
     // Load data into the navigation bar
@@ -125,12 +127,15 @@
       data = await Promise.all(fetches);
       groups = Object.keys(data[0])
       update_bar_chart = create_bar_chart("#svg_bar_chart")
+      update_pie_chart_reviews = create_pie_chart("#svg_pie_review")
+      update_pie_chart_play_own = create_pie_chart("#svg_pie_play_own")
+
       load_search_bar();
     });
 
     function load_search_bar() {
       let option_list = d3.select("#search_options_country")
-      for (const group of Object.keys(data[0])) {
+      for (const group of Object.keys(data[0]).sort()) {
         option_list.append("option").attr("value", group)
       }
       option_list = d3.select("#search_options_games")
@@ -144,35 +149,103 @@
 
       add_polyfill();
       // set the submit action and prevent page from reloading
-      d3.select("#input_all").attr("onsubmit", "handle_submit()");
-      var form = document.getElementById("input_all").addEventListener('submit', (e) => e
-        .preventDefault());
+      var form = d3.select("#search").on('submit', (e) => e.preventDefault())
     }
 
-    function update_page_to_new_group(group) {}
+    function update_page_to_new_group(group) {
+      d3.select("#summary").attr("style", 'display:flex')
+      d3.select("#page_header").html(group);
+      d3.select("#banner").attr('src', '')
+      d3.select("#game_text").attr('style', 'display:none')
+      console.log("switched to new group")
+      console.log(group)
+    }
 
     function update_page_to_new_game(game) {
-      // Reset main
       game_id = data[1][game]['appid']
       link = "https://cdn.akamai.steamstatic.com/steam/apps/" + game_id + "/header.jpg"
-      document.getElementById("banner").setAttribute('src', link)
-
+      d3.select("#banner").attr('src', link)
       link_desc = "../GamesDescriptions.json"
-
       var desc = fetch(link_desc, {
           mode: 'cors'
         })
         .then(response => response.json())
         .then(function (result) {
-          document.getElementById("description").innerText = result[game_id]
+          d3.select("#description").text(result[game_id])
         })
         .catch(error => console.log(error));
-      document.getElementById("bar_chart").setAttribute('style', 'diplay:block')
+
+      var genres = data[1][game]["tags"]
+      d3.select("#tags").selectAll("*").remove()
+      var nr_genres = 0
+      // d3.select("#tags").append("p")
+      genres.forEach((genre) => {
+        nr_genres += 1;
+        d3.select("#tags").append("a")
+                          .attr("class", "app_tag")
+                          .text(genre)
+                          .on("click", function() {
+                            update_page_to_new_genre(genre)
+                          })
+      })
+      if (nr_genres != 0) {
+        d3.select("#tags").attr("style", "display:flex")
+      } else {
+        d3.select("#tags").attr("style", "display:none")
+
+      }
+
+      var price = data[1][game]["price"]
+      if (price == null) {
+        price = 0
+      }
+      d3.select("#price").text("Price:  " + price / 100)
+      d3.select("#bar_chart").attr('style', 'display:block')
+
       update_bar_chart(data[1][game]["user_count"]);
+      update_pie_chart_reviews(prepare_dict(data[1][game], ['positive_reviews', 'negative_reviews']))
+      var user_cp = prepare_dict(data[1][game], ['user_count', 'user_played'])
+      var ar = []
+      ar[0] = {
+        name: "Own and play",
+        value: user_cp[1]["value"]
+      }
+      ar[1] = {
+        name: "Own but never played",
+        value: user_cp[0]["value"] - user_cp[1]["value"]
+      }
+
+      update_pie_chart_play_own(ar)
       d3.select("#page_header").html(game);
+      document.getElementById("summary").setAttribute('style', 'display:flex')
+      document.getElementById("game_text").setAttribute('style', 'display:block')
+
     }
 
-    function update_page_to_new_genre() {}
+    function prepare_dict(data, keys) {
+      var ar = []
+      for (const key of keys) {
+          const dict = {}
+          dict["name"] = key
+          var val = data[key]
+          if (Array.isArray(val)) {
+              val = val.reduce((a, b) => a + b, 0)
+          }
+          dict["value"] = val
+          ar.push(dict)
+      }
+      return ar
+    }
+
+    function update_page_to_new_genre(genre) {
+      d3.select("#summary").attr("style", 'display:flex')
+      d3.select("#page_header").html(genre);
+      d3.select("#banner").attr('src', '')
+      d3.select("#game_text").attr('style', 'display:none')
+      console.log("switched to new genre")
+      console.log(genre)
+
+    }
 
     //This function creates setsup the bar chart by providing a update function
     function create_bar_chart(selector) {
@@ -247,42 +320,49 @@
     }
 
 
-    function createPieChart(svgSelector, stateAttr, colorScheme) {
-      const margin = 10;
-      const radius = 100;
+    function create_pie_chart(selector) {
 
-      // Creates sources <svg> element
-      const svg = d3.select(svgSelector)
-        .attr('width', radius * 2 + margin * 2)
-        .attr('height', radius * 2 + margin * 2);
+      const viewport_width = 300;
+      const viewport_height = 200;
 
-      // Group used to enforce margin
+      const margin_left = 30;
+      const margin_top = 30;
+
+
+      const svg = d3.select(selector);
+
+      svg.attr("viewBox", `0 0 ${viewport_width} ${viewport_height}`);
+
+      const width = viewport_width - 2 * margin_left;
+      const height = viewport_height - 2 * margin_top;
+
+      //Make the group element which contains the bars
       const g = svg.append('g')
-        .attr('transform', `translate(${radius + margin},${radius + margin})`);
+        .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')');
 
-      const pie = d3.pie().value((d) => d.values.length).sortValues(null).sort(null);
-      const arc = d3.arc().outerRadius(radius).innerRadius(0);
-      const noSlice = [{
-          startAngle: 0,
-          endAngle: Math.PI * 2,
-          padAngle: 0
-        },
-        {
-          startAngle: 0,
-          endAngle: 0,
-          padAngle: 0
-        }
-      ];
+      var color = d3.scaleOrdinal(d3.schemeSet3);
 
-      const cscale = d3.scaleOrdinal(colorScheme);
+      var min = Math.min(width, height);
+      var oRadius = min / 2 * 0.9;
+      var iRadius = 0;
 
-      function update(new_data) { //{key: string, values: IPerson[]}[]
-        const pied = pie(new_data);
-        // Render the chart with new data
+      // construct default pie
+      var pie = d3.pie().value(function (d) {
+        return d.value;
+      }).sort(null);
 
-        cscale.domain(new_data.map((d) => d.key));
+      // construct arc generator
+      var arc = d3.arc()
+        .outerRadius(oRadius)
+        .innerRadius(iRadius);
 
-        // DATA JOIN
+
+      function update(new_data) {
+
+        const pied = pie(new_data)
+
+        color.domain(new_data.map((d) => d.name))
+
         const old = g.selectAll('path').data();
 
         function tweenArc(d, i) {
@@ -290,23 +370,11 @@
           return (t) => arc(interpolate(t));
         }
 
-        // DATA JOIN
-        const path = g.selectAll('path').data(pied, (d) => d.data.key).join(
-          // ENTER
-          // new elements
+        const path = g.selectAll('path').data(pied, (d) => d.data.name).join(
           (enter) => {
             const path_enter = enter.append('path')
-              .attr('d', (d, i) => arc(noSlice[i]))
-              .on('click', (event, d) => {
-                if (state[stateAttr] === d.data.key) {
-                  state[stateAttr] = null;
-                } else {
-                  state[stateAttr] = d.data.key;
-                }
-                updateApp();
-              });
-            path_enter.append('title');
-            return path_enter;
+            path_enter.append('title')
+            return path_enter
           },
           (update) => update,
           (exit) => exit.transition()
@@ -314,15 +382,11 @@
           .remove()
         );
 
-        // ENTER + UPDATE
-        // both old and new elements
-        path
-          .classed('selected', (d) => d.data.key === state.selectedSex)
-          .transition()
+        path.transition()
           .attrTween('d', tweenArc)
-          .style('fill', (d) => cscale(d.data.key));
+          .style('fill', (d) => color(d.data.name))
+        path.select('title').text((d) => d.data.name + ':' + d.data.value)
 
-        path.select('title').text((d) => `${d.data.key}: ${d.data.values.length}`);
       }
       return update;
     }
@@ -330,49 +394,64 @@
     function handle_submit() {
       let option = document.getElementById("input_field").value
       if (Object.keys(data[0]).includes(option)) {
-        document.getElementById("input_all").removeAttribute("error-tooltip");
-        update_page_to_new_group()
+        document.getElementById("search").removeAttribute("error-tooltip");
+        update_page_to_new_group(option)
 
       }
-      if (Object.keys(data[1]).includes(option)) {
-        document.getElementById("input_all").removeAttribute("error-tooltip");
+      else if (Object.keys(data[1]).includes(option)) {
+        document.getElementById("search").removeAttribute("error-tooltip");
         update_page_to_new_game(option);
       }
-      if (Object.keys(data[2]).includes(option)) {
-        document.getElementById("input_all").removeAttribute("error-tooltip");
-        update_page_to_new_genre()
+      else if (Object.keys(data[2]).includes(option)) {
+        document.getElementById("search").removeAttribute("error-tooltip");
+        update_page_to_new_genre(option)
       } else {
-        document.getElementById("input_all").setAttribute("error-tooltip",
+        console.log("NOT FOUND")
+        document.getElementById("search").setAttribute("error-tooltip",
           "Please only select items fromt the list")
       }
     }
   </script>
 </head>
 
-<body>
-  <form id="input_all">
-    <input data-optgroup-list="search_options" id="input_field" type="select"></input>
-    <datalist id="search_options">
-      <optgroup id="search_options_genre" label="Genre"></optgroup>
-      <optgroup id="search_options_country" label="Group"></optgroup>
-      <optgroup id="search_options_games" label="Games"></optgroup>
-    </datalist>
-    <div class="list-options" id="list-options-search" hidden>
-    </div>
-    <input type="submit" value="Go">
-  </form>
-
-  <div id="main">
-    <h1 id="page_header"></h1>
-    <img id="banner">
-    <p id="description"></p>
-
+<body style="background-color:#c7d5e0">
+  <div class="wrap">
+    <form class="search" id="search">
+      <input data-optgroup-list="search_options" class="searchTerm" id="input_field" type="select"></input>
+      <datalist id="search_options">
+        <optgroup id="search_options_genre" label="Genre"></optgroup>
+        <optgroup id="search_options_country" label="Group"></optgroup>
+        <optgroup id="search_options_games" label="Games"></optgroup>
+      </datalist>
+      <div class="list-options" id="list-options-search" hidden>
+      </div>
+      <!-- <input type="text" class="searchTerm" placeholder="What are you looking for?"> -->
+      <button type="submit" class="searchButton" id=searchButton onclick="handle_submit()">
+        <i class="fa fa-search"></i>
+      </button>
+    </form>
   </div>
-  <section id="pie_chart" style="display: none;">
-    <h3>Distribution actually playing</h3>
-    <svg id="svg_pie" class="pie_chart_own_play"></svg>
-  </section>
-  <div id="bar_chart" style="display: none;"><svg id="svg_bar_chart" class="bar_chart bar_playing_time"></svg></div>
+  <div class="main">
+    <div id="summary">
+      <div id="image"><img id="banner"></div>
+      <div id="text">
+        <h1 id="page_header"></h1>
+        <div id="game_text">
+          <p id="description"></p>
+          <div id="tags">Genres: </div>
+          <h3 id="price">Price: </h3>
+        </div>
+      </div>
+    </div>
+    <div class="charts">
+      <div id="pie_chart_rev">
+        <h3>Ratio Positive to Negative Reviews</h3><svg id="svg_pie_review" class="pie_chart review"></svg>
+      </div>
+      <div id="pie_chart_po"><svg id="svg_pie_play_own" class="pie_chart p_own"></svg></div>
+      <div class="bar_chart" id="bar_chart" style="display: none;"><svg id="svg_bar_chart"
+          class="bar_chart bar_playing_time"></svg></div>
+    </div>
+  </div>
 </body>
 
 </html>
