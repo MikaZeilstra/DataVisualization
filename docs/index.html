@@ -16,27 +16,32 @@
         const listOptions = document.getElementById("list-options-search");
         let optList = document.createElement("ul");
         listOptions.appendChild(optList);
-        
+
         //Generate the polyfill list
-        for(let optgroup of Array.from(datalist.childNodes)){
-          if(optgroup.nodeName == "#text"){continue}
-          let details = optList.appendChild(document.createElement("li")).appendChild(document.createElement("details"));
-          details.setAttribute("open","true");
+        for (let optgroup of Array.from(datalist.childNodes)) {
+          if (optgroup.nodeName == "#text") {
+            continue
+          }
+          let details = optList.appendChild(document.createElement("li")).appendChild(document.createElement(
+            "details"));
+          details.setAttribute("open", "true");
           let groupName = document.createElement("summary");
           groupName.textContent = optgroup.getAttribute("label");
-          
+
 
           details.appendChild(groupName);
           let optgroupUl = document.createElement("ul");
-          for(let option of Array.from(optgroup.childNodes) ){
-            if(optgroup.nodeName == "#text"){continue}
+          for (let option of Array.from(optgroup.childNodes)) {
+            if (optgroup.nodeName == "#text") {
+              continue
+            }
             let optionName = option.getAttribute("value");
             let optionLi = document.createElement("li")
             optionLi.setAttribute("class", "option");
             optionLi.setAttribute("data-value", optionName);
-            
+
             let optionSpan = document.createElement("span");
-            optionSpan.setAttribute("class","value");
+            optionSpan.setAttribute("class", "value");
             optionSpan.textContent = optionName;
 
             optionLi.appendChild(optionSpan);
@@ -110,23 +115,73 @@
 
       });
     };
-    // Load data into the navigation bar
+    // Load json data
     const fetches = [
       fetch('../UserOwnedGames.json').then(response => response.json()),
       fetch('../GamesGenre.json').then(response => response.json()),
       fetch('../GenreData.json').then(response => response.json())
     ];
 
+    //Enum like structure to keep track of Page content
+    class Page_type {
+      static Landing = new Page_type("Landing")
+      static Game = new Page_type("Game")
+      static Genre = new Page_type("Genre")
+      static Group = new Page_type("Group")
 
-    data = [];
-    groups = [];
+      constructor(name) {
+        this.name = name;
+      }
+
+    }
+
+    var current_page_type = undefined;
+
+    var data = [];
+    var update_bar_chart;
+    var update_stacked_bar_chart;
+
 
     document.addEventListener("DOMContentLoaded", async () => {
       data = await Promise.all(fetches);
-      groups = Object.keys(data[0])
-      update_bar_chart = create_bar_chart("#svg_bar_chart")
+      update_bar_chart = create_bar_chart("#svg_bar_chart_users");
+      update_stacked_bar_chart = create_stacked_bar_chart("#svg_stacked_bar_chart");
       load_search_bar();
+
+      update_page_to_landing();
     });
+
+    function getGameTopNPlayTime(Data, topN) {
+      topNarr = Array(topN).fill({
+        total: -1
+      });
+      for (datum of Data) {
+        min = 10e10;
+        mindex = -1;
+        dataTotal = datum.user_minutes.reduce((a, b) => a + b, 0);
+        //console.log(dataTotal);
+        for (i = 0; i < topN; i++) {
+          if (topNarr[i].total < min && topNarr[i].total < dataTotal) {
+            min = topNarr[i];
+            mindex = i;
+          }
+        }
+        if (mindex != -1) {
+          topNarr[mindex] = {
+            game: datum.name,
+            total: dataTotal,
+            group_minutes: datum.user_minutes
+          };
+        }
+
+      }
+      return topNarr.map(((d) => {
+        return {
+          name: d.game,
+          minutes: d.group_minutes
+        }
+      }));
+    };
 
     function load_search_bar() {
       let option_list = d3.select("#search_options_country")
@@ -144,9 +199,13 @@
 
       add_polyfill();
       // set the submit action and prevent page from reloading
-      d3.select("#input_all").attr("onsubmit", "handle_submit()");
       var form = document.getElementById("input_all").addEventListener('submit', (e) => e
         .preventDefault());
+    }
+
+    function update_page_to_landing() {
+      current_page_type = Page_type.Landing;
+      update_stacked_bar_chart(wrangle_stacked_bar_chart(), Object.keys(data[0]));
     }
 
     function update_page_to_new_group(group) {}
@@ -167,12 +226,150 @@
           document.getElementById("description").innerText = result[game_id]
         })
         .catch(error => console.log(error));
-      document.getElementById("bar_chart").setAttribute('style', 'diplay:block')
-      update_bar_chart(data[1][game]["user_count"]);
+      document.getElementById("bar_chart_users").setAttribute('style', 'diplay:block')
+      update_bar_chart(data[1][game]["user_count"], Object.keys(data[0]));
       d3.select("#page_header").html(game);
     }
 
     function update_page_to_new_genre() {}
+
+    function wrangle_stacked_bar_chart() {
+      //Wrangle data
+      let N = parseInt(document.getElementById("stacked_bar_chart_N").value)
+      let topNgameData = getGameTopNPlayTime(Object.values(data[1]), N);
+      let group_labels = Object.keys(data[0]);
+      let group_data = Array(group_labels.length).fill(0).map((e) => [{
+        cum_sum: 0
+      }]);
+
+      for (let game of topNgameData) {
+        for (let i = 0; i < game.minutes.length; i++) {
+          group_data[i].push({
+            val: game.minutes[i],
+            cum_sum: group_data[i][group_data[i].length - 1].cum_sum + game.minutes[i],
+            label: group_labels[i],
+            game: game.name
+          })
+        }
+      }
+      group_data.map((e) => e.shift())
+      group_data.forEach((r, i) => r.forEach((e) => e.total_sum = group_data[i][group_data[i].length - 1].cum_sum))
+      return group_data;
+    }
+
+    function create_stacked_bar_chart(selector) {
+
+      document.getElementById("stacked_bar_chart_N").addEventListener("input", (e) => update(
+        wrangle_stacked_bar_chart(), Object.keys(data[0])));
+      //Set the viewport and margins
+      const viewport_width = 300;
+      const viewport_height = 200;
+
+      const margin_left = 40;
+      const margin_top = 30;
+
+
+      const svg = d3.select(selector);
+
+      let tooltip = document.createElement("div")
+
+      document.querySelector(selector).parentNode.appendChild(tooltip)
+      tooltip = d3.select(tooltip)
+      tooltip
+        .style("opacity", 0)
+        .attr("id", "stacked-tooltip")
+        .style("background-color", "white")
+        .style("height","20px");
+
+      var mouseover = function (d) {
+        let data = d3.select(d.target).datum();
+        var game = data.game;
+        var val = data.val;
+        console.log(game);
+        tooltip
+          .html("Game : " + game + " Playtime in minutes: " + val)
+          .style("opacity", 1)
+      }
+      var mousemove = function (d) {
+        tooltip
+          .style("left", (d3.pointer(this)[0] + 90) +
+          "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
+          .style("top", (d3.pointer(this)[1]) + "px")
+      }
+      var mouseleave = function (d) {
+        tooltip
+          .style("opacity", 0)
+      }
+
+      svg.attr("viewBox", `0 0 ${viewport_width} ${viewport_height}`);
+
+      const width = viewport_width - 2 * margin_left;
+      const height = viewport_height - 2 * margin_top;
+
+      //Make the group element which contains the bars
+      const g = svg.append('g')
+        .attr('transform', `translate(${margin_left} , ${margin_top})`);
+
+
+      //Create axes which fit our box exactly
+      const xscale = d3.scaleBand().range([0, width]);
+      const yscale = d3.scaleLinear().range([0, height]);
+
+      const xaxis = d3.axisBottom().scale(xscale);
+      const g_xaxis = g.append('g').attr('class', 'x axis');
+      const yaxis = d3.axisLeft().scale(yscale).tickFormat(function (d) {
+        return d + "%"
+      });
+      const g_yaxis = g.append('g').attr('class', 'y axis');
+
+      //Update function to be retured
+      function update(new_data, labels) {
+        //console.log(new_data)
+        xscale.domain(labels).padding(0.1);
+        yscale.domain([100, 0]);
+
+
+        g_xaxis.transition().attr("transform", "translate(0," + height + ")").call(xaxis);
+        g_yaxis.transition().call(yaxis);
+
+        let color = d3.scaleOrdinal().domain(new_data[0].map((e) => e.game)).range(d3.schemeCategory10);
+        //Get bars and add bars if require
+
+
+        let bar_groups = g.selectAll(".bar_group").data(new_data);
+
+
+        let bar_groups_enter = bar_groups.enter().append("g").attr("class", "bar_group");
+
+        let bars = bar_groups.merge(bar_groups_enter).selectAll("rect").data((d) => d)
+
+        let bar_enter = bars.enter().append("rect")
+          .attr('x', (d) => xscale(d.label))
+          .attr('y', 0)
+          .attr('width', (d) => xscale.bandwidth(d.label))
+          .attr('height', 0)
+          .attr('class', 'bar_chart_bar')
+          .on("mouseover", mouseover)
+          .on("mousemove", mousemove)
+          .on("mouseleave", mouseleave);
+
+        //Set the correct values for all the bars
+
+        bars.merge(bar_enter).transition()
+          .attr('height', (d) => (height - yscale(d.val / d.total_sum * 100)))
+          .attr("y", (d) => yscale(d.cum_sum / d.total_sum * 100))
+          .attr('width', (d) => xscale.bandwidth(d.label))
+          .attr('fill', (d) => color(d.game))
+          .attr('hover-tooltip', (d) => d.game + " : " + d.val)
+          .attr('x', (d) => xscale(d.label))
+
+        //Remove unecesary bars
+        bars.exit().remove();
+
+
+      }
+      return update
+    }
 
     //This function creates setsup the bar chart by providing a update function
     function create_bar_chart(selector) {
@@ -206,16 +403,15 @@
         if (Math.floor(e) != e) {
           return;
         }
-
         return e;
       });
       const g_yaxis = g.append('g').attr('class', 'y axis');
 
       //Update function to be retured
-      function update(new_data) {
+      function update(new_data, labels) {
 
         //Create the axis with the new data.
-        xscale.domain(groups).padding(0.1);
+        xscale.domain(labels).padding(0.1);
         yscale.domain([d3.max(new_data), 0]);
 
 
@@ -227,7 +423,7 @@
         const bars = g.selectAll("rect").data(new_data);
 
         const bar_enter = bars.enter().append("rect")
-          .attr('x', (d) => xscale(groups[new_data.indexOf(d)]))
+          .attr('x', (d) => xscale(labels[new_data.indexOf(d)]))
           .attr('y', height)
           .attr('width', xscale.bandwidth())
           .attr('height', 0);
@@ -237,7 +433,7 @@
           .attr('height', (d) => (height - yscale(d)))
           .attr("y", (d) => (yscale(d)))
           .attr('width', xscale.bandwidth())
-          .attr('x', (d) => xscale(groups[new_data.indexOf(d)]))
+          .attr('x', (d) => xscale(labels[new_data.indexOf(d)]))
 
         //Remove unecesary bars
         bars.exit().remove();
@@ -330,27 +526,49 @@
     function handle_submit() {
       let option = document.getElementById("input_field").value
       if (Object.keys(data[0]).includes(option)) {
+        if (current_page_type != Page_type.Group) {
+          cleanup_page();
+        }
         document.getElementById("input_all").removeAttribute("error-tooltip");
-        update_page_to_new_group()
-
-      }
-      if (Object.keys(data[1]).includes(option)) {
+        update_page_to_new_group(option);
+        current_page_type = Page_type.Group;
+      } else if (Object.keys(data[1]).includes(option)) {
+        if (current_page_type != Page_type.Game) {
+          cleanup_page();
+        }
         document.getElementById("input_all").removeAttribute("error-tooltip");
         update_page_to_new_game(option);
-      }
-      if (Object.keys(data[2]).includes(option)) {
+        current_page_type = Page_type.Game;
+      } else if (Object.keys(data[2]).includes(option)) {
+        if (current_page_type != Page_type.Genre) {
+          cleanup_page();
+        }
         document.getElementById("input_all").removeAttribute("error-tooltip");
-        update_page_to_new_genre()
+        update_page_to_new_genre(option);
+        current_page_type = Page_type.Group;
       } else {
         document.getElementById("input_all").setAttribute("error-tooltip",
-          "Please only select items fromt the list")
+          "Please only select items fromt the list");
       }
+    }
+
+    function cleanup_page() {
+      if (current_page_type == Page_type.Landing) {
+        document.getElementById("stacked_bar_chart").setAttribute("style", "display:none;");
+      } else if (current_page_type == Page_type.Game) {
+
+      } else if (current_page_type == Page_type.Genre) {
+
+      } else if (current_page_type == Page_type.Group) {
+
+      }
+
     }
   </script>
 </head>
 
 <body>
-  <form id="input_all">
+  <form id="input_all" onsubmit="handle_submit()">
     <input data-optgroup-list="search_options" id="input_field" type="select"></input>
     <datalist id="search_options">
       <optgroup id="search_options_genre" label="Genre"></optgroup>
@@ -368,11 +586,21 @@
     <p id="description"></p>
 
   </div>
-  <section id="pie_chart" style="display: none;">
+  <div id="pie_chart" style="display: none;">
     <h3>Distribution actually playing</h3>
     <svg id="svg_pie" class="pie_chart_own_play"></svg>
-  </section>
-  <div id="bar_chart" style="display: none;"><svg id="svg_bar_chart" class="bar_chart bar_playing_time"></svg></div>
+  </div>
+  <div id="bar_chart_users" style="display: none;"><svg id="svg_bar_chart_users"
+      class="bar_chart bar_playing_time"></svg></div>
+  <div id="stacked_bar_chart">
+    <h3>Fraction of playtime for top N games by group</h3>
+    N = <input type="number" min="1" max="10" value="5" id="stacked_bar_chart_N"><br>
+    <svg id="svg_stacked_bar_chart"></svg>
+  </div>
+
+  <div>
+
+  </div>
 </body>
 
 </html>
