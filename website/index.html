@@ -180,13 +180,16 @@
       var nr_genres = 0
       // d3.select("#tags").append("p")
       genres.forEach((genre) => {
-        nr_genres += 1;
-        d3.select("#tags").append("a")
+        if (genre != "") {
+          nr_genres += 1;
+          d3.select("#tags").append("a")
                           .attr("class", "app_tag")
                           .text(genre)
                           .on("click", function() {
                             update_page_to_new_genre(genre)
                           })
+        }
+        
       })
       if (nr_genres != 0) {
         d3.select("#tags").attr("style", "display:flex")
@@ -438,7 +441,7 @@
         <h1 id="page_header"></h1>
         <div id="game_text">
           <p id="description"></p>
-          <div id="tags">Genres: </div>
+          <div id="tags">Genres:</div>
           <h3 id="price">Price: </h3>
         </div>
       </div>
