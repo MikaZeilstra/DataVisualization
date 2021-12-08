@@ -1,233 +1,298 @@
-genre,price,pos_reviews
-Action,0,73.51
-Video Production,0,81.77
-Audio Production,0,93.0
-Casual,0,76.48
-Design & Illustration,0,85.11
-Utilities,0,81.48
-Early Access,0,73.37
-Strategy,0,73.56
-Free to Play,0,76.89
-Game Development,0,80.4
-Gore,0,73.5
-Indie,0,75.75
-Massively Multiplayer,0,69.76
-Nudity,0,52.0
-Photo Editing,0,95.0
-Sports,0,76.4
-RPG,0,74.82
-Software Training,0,82.0
-Racing,0,73.54
-Simulation,0,75.15
-Animation & Modeling,0,83.5
-Violent,0,73.0
-Education,0,77.5
-Web Publishing,0,84.75
-Adventure,0,74.74
-Violent,5,67.83
-Indie,5,75.66
-Utilities,5,79.95
-RPG,5,73.33
-Adventure,5,74.02
-Gore,5,66.6
-Photo Editing,5,87.0
-Software Training,5,90.0
-Casual,5,77.72
-Early Access,5,70.56
-Nudity,5,84.0
-Racing,5,72.92
-Sports,5,69.38
-Design & Illustration,5,72.4
-Simulation,5,73.23
-Audio Production,5,85.67
-Free to Play,5,57.0
-Action,5,74.57
-Sexual Content,5,81.0
-Video Production,5,83.0
-Massively Multiplayer,5,66.95
-Education,5,90.0
-Strategy,5,74.98
-Animation & Modeling,5,74.0
-Web Publishing,10,83.67
-Photo Editing,10,94.0
-Strategy,10,81.73
-Early Access,10,82.64
-Massively Multiplayer,10,73.88
-Design & Illustration,10,83.67
-Sports,10,80.25
-Violent,10,53.5
-Nudity,10,61.0
-Indie,10,82.02
-Adventure,10,80.25
-Game Development,10,86.0
-Video Production,10,77.25
-Racing,10,77.52
-Action,10,82.02
-Audio Production,10,76.0
-Casual,10,82.78
-Animation & Modeling,10,94.0
-Gore,10,46.0
-RPG,10,80.5
-Simulation,10,81.81
-Utilities,10,78.5
-Animation & Modeling,15,85.33
-Sexual Content,15,80.0
-Free to Play,15,68.0
-Indie,15,85.23
-Video Production,15,85.33
-Simulation,15,83.71
-Design & Illustration,15,82.67
-Strategy,15,84.27
-Massively Multiplayer,15,77.6
-Sports,15,81.94
-Racing,15,82.38
-Early Access,15,86.77
-Action,15,83.76
-Adventure,15,84.7
-Casual,15,85.34
-RPG,15,83.13
-Utilities,15,82.0
-Audio Production,15,93.0
-Web Publishing,15,95.0
-Indie,20,84.69
-Game Development,20,85.5
-Massively Multiplayer,20,76.89
-RPG,20,82.88
-Software Training,20,72.0
-Racing,20,82.68
-Sports,20,83.72
-Action,20,83.84
-Simulation,20,83.28
-Adventure,20,84.27
-Early Access,20,85.67
-Casual,20,83.54
-Design & Illustration,20,85.5
-Free to Play,20,75.33
-Animation & Modeling,20,85.5
-Utilities,20,71.0
-Education,20,72.0
-Strategy,20,82.34
-Utilities,25,69.0
-Simulation,25,84.14
-Action,25,84.29
-Web Publishing,25,81.0
-Software Training,25,69.0
-Casual,25,88.12
-Racing,25,83.0
-RPG,25,85.27
-Adventure,25,84.17
-Audio Production,25,69.0
-Indie,25,86.23
-Video Production,25,69.0
-Massively Multiplayer,25,78.5
-Strategy,25,85.58
-Early Access,25,85.0
-Sports,25,86.67
-Early Access,30,82.72
-Indie,30,83.3
-Utilities,30,80.67
-Video Production,30,85.0
-Sports,30,81.24
-Software Training,30,85.0
-Racing,30,79.29
-RPG,30,77.18
-Casual,30,88.19
-Web Publishing,30,85.0
-Education,30,85.0
-Simulation,30,80.64
-Massively Multiplayer,30,70.3
-Action,30,80.56
-Audio Production,30,85.0
-Adventure,30,81.46
-Strategy,30,79.21
-Simulation,35,82.21
-Racing,35,93.0
-Adventure,35,87.69
-Utilities,35,89.0
-RPG,35,81.17
-Casual,35,98.5
-Strategy,35,82.5
-Action,35,79.0
-Early Access,35,80.0
-Massively Multiplayer,35,70.67
-Sports,35,84.0
-Indie,35,83.45
-Simulation,40,80.3
-Software Training,40,100.0
-Strategy,40,77.81
-Utilities,40,100.0
-Sports,40,81.18
-Massively Multiplayer,40,77.18
-Adventure,40,81.3
-Racing,40,75.71
-Game Development,40,100.0
-Indie,40,85.11
-Audio Production,40,100.0
-Casual,40,79.4
-Early Access,40,88.0
-RPG,40,78.46
-Action,40,78.68
-Design & Illustration,40,100.0
-Sports,45,80.0
-Indie,45,77.0
-Early Access,45,80.0
-Strategy,45,85.43
-Massively Multiplayer,45,68.0
-Adventure,45,85.33
-RPG,45,85.5
-Casual,45,89.25
-Simulation,45,85.75
-Action,45,76.78
-Design & Illustration,50,83.0
-Strategy,50,74.14
-Early Access,50,70.0
-Action,50,82.4
-Utilities,50,83.0
-Animation & Modeling,50,83.0
-Adventure,50,80.67
-Casual,50,84.0
-Education,50,83.0
-RPG,50,82.0
-Web Publishing,50,83.0
-Racing,50,73.25
-Sports,50,76.56
-Indie,50,74.6
-Simulation,50,73.79
-Software Training,50,83.0
-Massively Multiplayer,50,83.5
-Sports,55,92.0
-Simulation,55,92.0
-Audio Production,60,81.0
-Simulation,60,71.56
-Animation & Modeling,60,81.0
-Action,60,77.78
-Adventure,60,79.31
-Video Production,60,82.0
-Utilities,60,82.0
-RPG,60,83.25
-Racing,60,75.29
-Casual,60,40.33
-Software Training,60,81.0
-Photo Editing,60,79.0
-Strategy,60,79.93
-Design & Illustration,60,81.0
-Indie,60,75.0
-Early Access,60,88.0
-Education,60,81.0
-Sports,60,63.0
-Web Publishing,70,94.0
-Action,70,71.0
-Design & Illustration,70,94.0
-Racing,70,82.0
-Adventure,70,71.0
-Sports,70,82.0
-Action,80,93.0
-Design & Illustration,80,82.0
-Animation & Modeling,80,80.33
-Utilities,80,80.0
-Audio Production,80,80.5
-Software Training,80,80.5
-Photo Editing,80,80.5
-RPG,80,78.0
-Video Production,80,80.33
-Web Publishing,80,84.5
+genre,price,count,pos_reviews
+Action,0,666,73.51
+Casual,0,655,76.48
+Video Production,0,13,81.77
+Design & Illustration,0,9,85.11
+Early Access,0,114,73.37
+Utilities,0,29,81.48
+Education,0,2,77.5
+Free to Play,0,623,76.89
+Game Development,0,5,80.4
+Audio Production,0,4,93.0
+Gore,0,2,73.5
+Massively Multiplayer,0,205,69.76
+Strategy,0,318,73.56
+Nudity,0,1,52.0
+Photo Editing,0,2,95.0
+RPG,0,290,74.82
+Racing,0,57,73.54
+Sports,0,77,76.4
+Simulation,0,302,75.15
+Indie,0,1001,75.75
+Animation & Modeling,0,14,83.5
+Software Training,0,3,82.0
+Violent,0,3,73.0
+Adventure,0,449,74.74
+Web Publishing,0,4,84.75
+Early Access,5,43,70.56
+Utilities,5,22,79.95
+Education,5,2,90.0
+Adventure,5,262,74.02
+Software Training,5,2,90.0
+Gore,5,5,66.6
+Design & Illustration,5,10,72.4
+Massively Multiplayer,5,20,66.95
+Nudity,5,1,84.0
+Photo Editing,5,2,87.0
+RPG,5,108,73.33
+Racing,5,40,72.92
+Sports,5,21,69.38
+Sexual Content,5,2,81.0
+Action,5,309,74.57
+Simulation,5,134,73.23
+Strategy,5,150,74.98
+Video Production,5,2,83.0
+Indie,5,516,75.66
+Free to Play,5,5,57.0
+Casual,5,282,77.72
+Audio Production,5,3,85.67
+Animation & Modeling,5,9,74.0
+Violent,5,6,67.83
+Game Development,10,1,86.0
+Video Production,10,4,77.25
+Web Publishing,10,3,83.67
+Indie,10,371,82.02
+Action,10,311,82.02
+Animation & Modeling,10,1,94.0
+Casual,10,166,82.78
+Adventure,10,232,80.25
+Strategy,10,143,81.73
+Utilities,10,10,78.5
+Gore,10,1,46.0
+Violent,10,2,53.5
+RPG,10,111,80.5
+Racing,10,23,77.52
+Photo Editing,10,1,94.0
+Nudity,10,1,61.0
+Design & Illustration,10,3,83.67
+Audio Production,10,1,76.0
+Simulation,10,154,81.81
+Sports,10,20,80.25
+Early Access,10,28,82.64
+Massively Multiplayer,10,8,73.88
+Indie,15,329,85.23
+Racing,15,21,82.38
+Audio Production,15,2,93.0
+Sports,15,17,81.94
+Massively Multiplayer,15,5,77.6
+Strategy,15,118,84.27
+Action,15,223,83.76
+Web Publishing,15,1,95.0
+Video Production,15,3,85.33
+RPG,15,111,83.13
+Early Access,15,53,86.77
+Free to Play,15,2,68.0
+Sexual Content,15,1,80.0
+Simulation,15,110,83.71
+Utilities,15,5,82.0
+Design & Illustration,15,3,82.67
+Animation & Modeling,15,3,85.33
+Casual,15,100,85.34
+Adventure,15,194,84.7
+Utilities,20,3,71.0
+Sports,20,25,83.72
+Simulation,20,174,83.28
+RPG,20,150,82.88
+Action,20,365,83.84
+Software Training,20,1,72.0
+Design & Illustration,20,2,85.5
+Adventure,20,301,84.27
+Game Development,20,2,85.5
+Casual,20,68,83.54
+Early Access,20,73,85.67
+Strategy,20,137,82.34
+Education,20,1,72.0
+Racing,20,31,82.68
+Indie,20,344,84.69
+Animation & Modeling,20,2,85.5
+Free to Play,20,3,75.33
+Massively Multiplayer,20,19,76.89
+Sports,25,6,86.67
+Racing,25,11,83.0
+RPG,25,49,85.27
+Simulation,25,73,84.14
+Software Training,25,1,69.0
+Video Production,25,1,69.0
+Audio Production,25,1,69.0
+Action,25,86,84.29
+Adventure,25,54,84.17
+Web Publishing,25,2,81.0
+Casual,25,24,88.12
+Utilities,25,1,69.0
+Massively Multiplayer,25,4,78.5
+Early Access,25,41,85.0
+Strategy,25,57,85.58
+Indie,25,127,86.23
+Utilities,30,3,80.67
+Simulation,30,80,80.64
+Early Access,30,18,82.72
+Education,30,1,85.0
+Strategy,30,86,79.21
+Software Training,30,1,85.0
+Audio Production,30,1,85.0
+Video Production,30,1,85.0
+Racing,30,17,79.29
+Indie,30,98,83.3
+Casual,30,21,88.19
+Massively Multiplayer,30,10,70.3
+Web Publishing,30,1,85.0
+Action,30,151,80.56
+RPG,30,73,77.18
+Sports,30,17,81.24
+Adventure,30,108,81.46
+Strategy,35,10,82.5
+Sports,35,2,84.0
+Utilities,35,1,89.0
+Massively Multiplayer,35,3,70.67
+RPG,35,6,81.17
+Simulation,35,19,82.21
+Action,35,11,79.0
+Racing,35,1,93.0
+Early Access,35,9,80.0
+Adventure,35,13,87.69
+Indie,35,11,83.45
+Casual,35,2,98.5
+Indie,40,28,85.11
+Design & Illustration,40,1,100.0
+Utilities,40,1,100.0
+Massively Multiplayer,40,11,77.18
+Casual,40,5,79.4
+Audio Production,40,1,100.0
+Sports,40,11,81.18
+Strategy,40,47,77.81
+Adventure,40,54,81.3
+RPG,40,46,78.46
+Racing,40,14,75.71
+Action,40,90,78.68
+Software Training,40,1,100.0
+Simulation,40,44,80.3
+Early Access,40,4,88.0
+Game Development,40,1,100.0
+Simulation,45,4,85.75
+Adventure,45,6,85.33
+Action,45,9,76.78
+Casual,45,4,89.25
+Early Access,45,1,80.0
+Strategy,45,7,85.43
+Sports,45,1,80.0
+Indie,45,2,77.0
+RPG,45,2,85.5
+Massively Multiplayer,45,1,68.0
+Racing,50+,16,74.69
+Software Training,50+,4,81.25
+RPG,50+,43,82.6
+Action,50+,93,79.45
+Photo Editing,50+,3,80.0
+Massively Multiplayer,50+,2,83.5
+Video Production,50+,5,81.0
+Adventure,50+,43,79.4
+Strategy,50+,28,77.04
+Early Access,50+,3,76.0
+Audio Production,50+,3,80.67
+Sports,50+,23,70.39
+Utilities,50+,5,81.4
+Indie,50+,6,74.67
+Casual,50+,7,65.29
+Education,50+,2,82.0
+Design & Illustration,50+,10,83.0
+Simulation,50+,38,73.21
+Animation & Modeling,50+,5,81.0
+Web Publishing,50+,4,86.5
+Free to Play,10,0,-1.0
+Free to Play,25,0,-1.0
+Free to Play,30,0,-1.0
+Free to Play,35,0,-1.0
+Free to Play,40,0,-1.0
+Free to Play,45,0,-1.0
+Free to Play,50+,0,-1.0
+Racing,45,0,-1.0
+Violent,15,0,-1.0
+Violent,20,0,-1.0
+Violent,25,0,-1.0
+Violent,30,0,-1.0
+Violent,35,0,-1.0
+Violent,40,0,-1.0
+Violent,45,0,-1.0
+Violent,50+,0,-1.0
+Animation & Modeling,25,0,-1.0
+Animation & Modeling,30,0,-1.0
+Animation & Modeling,35,0,-1.0
+Animation & Modeling,40,0,-1.0
+Animation & Modeling,45,0,-1.0
+Video Production,20,0,-1.0
+Video Production,35,0,-1.0
+Video Production,40,0,-1.0
+Video Production,45,0,-1.0
+Nudity,15,0,-1.0
+Nudity,20,0,-1.0
+Nudity,25,0,-1.0
+Nudity,30,0,-1.0
+Nudity,35,0,-1.0
+Nudity,40,0,-1.0
+Nudity,45,0,-1.0
+Nudity,50+,0,-1.0
+Design & Illustration,25,0,-1.0
+Design & Illustration,30,0,-1.0
+Design & Illustration,35,0,-1.0
+Design & Illustration,45,0,-1.0
+Photo Editing,15,0,-1.0
+Photo Editing,20,0,-1.0
+Photo Editing,25,0,-1.0
+Photo Editing,30,0,-1.0
+Photo Editing,35,0,-1.0
+Photo Editing,40,0,-1.0
+Photo Editing,45,0,-1.0
+Utilities,45,0,-1.0
+Audio Production,20,0,-1.0
+Audio Production,35,0,-1.0
+Audio Production,45,0,-1.0
+Education,10,0,-1.0
+Education,15,0,-1.0
+Education,25,0,-1.0
+Education,35,0,-1.0
+Education,40,0,-1.0
+Education,45,0,-1.0
+Software Training,10,0,-1.0
+Software Training,15,0,-1.0
+Software Training,35,0,-1.0
+Software Training,45,0,-1.0
+Web Publishing,5,0,-1.0
+Web Publishing,20,0,-1.0
+Web Publishing,35,0,-1.0
+Web Publishing,40,0,-1.0
+Web Publishing,45,0,-1.0
+Gore,15,0,-1.0
+Gore,20,0,-1.0
+Gore,25,0,-1.0
+Gore,30,0,-1.0
+Gore,35,0,-1.0
+Gore,40,0,-1.0
+Gore,45,0,-1.0
+Gore,50+,0,-1.0
+Game Development,5,0,-1.0
+Game Development,15,0,-1.0
+Game Development,25,0,-1.0
+Game Development,30,0,-1.0
+Game Development,35,0,-1.0
+Game Development,45,0,-1.0
+Game Development,50+,0,-1.0
+Sexual Content,0,0,-1.0
+Sexual Content,10,0,-1.0
+Sexual Content,20,0,-1.0
+Sexual Content,25,0,-1.0
+Sexual Content,30,0,-1.0
+Sexual Content,35,0,-1.0
+Sexual Content,40,0,-1.0
+Sexual Content,45,0,-1.0
+Sexual Content,50+,0,-1.0
+Action Games,0,0,-1.0
+Action Games,5,0,-1.0
+Action Games,10,0,-1.0
+Action Games,15,0,-1.0
+Action Games,20,0,-1.0
+Action Games,25,0,-1.0
+Action Games,30,0,-1.0
+Action Games,35,0,-1.0
+Action Games,40,0,-1.0
+Action Games,45,0,-1.0
+Action Games,50+,0,-1.0

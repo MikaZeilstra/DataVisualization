@@ -4,14 +4,14 @@
 <script src="https://d3js.org/d3.v4.js"></script>
 <div id="datadiv"></div>
 <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script> <!-- color palettes --> 
-
-  <script>    
-    var margin = {top: 70, right: 20, bottom: 20, left: 120},
-    width = 650 - margin.left - margin.right,
+<!-- TODO: createGraph() returns update() -->
+<script>    
+    var margin = {top: 70, right: 20, bottom: 100, left: 120},
+    width = 600 - margin.left - margin.right,
     height = 800 - margin.top - margin.bottom;
 
     var svg = d3.select("#datadiv")
-    
+  
     .append("svg")
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
@@ -35,6 +35,14 @@ svg.append("g")
   .attr("transform", "translate(0," + height + ")")
   .call(d3.axisBottom(x))
 
+// X axis label
+svg.append("text")             
+    .attr("transform",
+          "translate(" + (width/2) + " ," + 
+                          (height + margin.top/2 + 10) + ")")
+    .style("text-anchor", "middle")
+    .text("Price");
+
 // Build Y scales and axis:
 var y = d3.scaleBand()
   .range([ height, 0 ])
@@ -42,6 +50,15 @@ var y = d3.scaleBand()
   .padding(0.01);
 svg.append("g")
   .call(d3.axisLeft(y));
+
+// Y axis label
+svg.append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("y", 0 - margin.left)
+    .attr("x",0 - (height / 2))
+    .attr("dy", "1em")
+    .style("text-anchor", "middle")
+    .text("Value"); 
 
 // Build color scale
 var myColor = d3.scaleSequential()
@@ -59,10 +76,8 @@ var tooltip = d3.select("#datadiv")
     .style("border-radius", "5px")
     .style("padding", "5px")
     .style("display", "inline")
-    .style("position", "fixed")
-    ;
+    .style("position", "fixed");
     
-
 // Three function that change the tooltip when user hover / move / leave a cell
 var mouseover = function(d) {
     tooltip
@@ -70,7 +85,7 @@ var mouseover = function(d) {
   }
 var mousemove = function(d) {
   tooltip
-    .html("Positive Reviews: <b>" + d.pos_reviews + "</b>%")
+    .html("Positive Reviews: " + ((d.pos_reviews < 1) ? 'N/A' : "<b>" + d.pos_reviews + "</b>%") + " | Games: <b>" + d.count +"</b>")
     .style("left", (d3.mouse(this)[0]+40) + "px")
     .style("top", (d3.mouse(this)[1]+40) + "px")
   }
@@ -86,11 +101,9 @@ svg.selectAll()
   .append("rect")
     .attr("x", function(d) { return x(d.price) })
     .attr("y", function(d) { return y(d.genre) })
-    .attr("rx", 3)
-    .attr("ry", 3)
     .attr("width", x.bandwidth() )
     .attr("height", y.bandwidth() )
-    .style("fill", function(d) { return myColor(d.pos_reviews)} )
+    .style("fill", function(d) { return myColor((d.pos_reviews < 1) ? NaN : d.pos_reviews)} ) //In order for empty entries to be black
   .on("mouseover", mouseover)
   .on("mousemove", mousemove)
   .on("mouseleave", mouseleave)
@@ -114,7 +127,7 @@ svg.append("text")
         .style("font-family", "arial")
         .style("fill", "grey")
         .style("max-width", 400)
-        .text("Percentage of positive reviews based on the genre and price of the games");
+        .text("Percentage of positive reviews based on the game's genre and price");
 
 </script>
 </html>
