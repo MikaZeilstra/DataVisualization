@@ -1,3 +1,6 @@
+*{
+  --Searchsize : 10vh;
+}
 body {
   background-color: #c7d5e0;
   color: #171a21;
@@ -127,4 +130,20 @@ body {
 .pie_chart {
   width : auto;
   height : 20vh;
+}
+#svg_bar_chart_users{
+  height: 50vh;
+}
+#svg_stacked_bar_chart{
+
+  height: 40vh;
+}
+[hover-tooltip]:hover{
+  
+}
+#stacked-tooltip {
+  position: absolute;
+}
+.bar_chart_bar{
+  fill : blue
 }
