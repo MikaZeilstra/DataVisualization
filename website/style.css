@@ -6,7 +6,7 @@ body {
 }
 .main {
   margin: 1vw;
-  height: 70vh;  
+  height: 85vh;  
 }
 #summary{
   display: none;
@@ -15,7 +15,9 @@ body {
 }
 .charts {
   width: inherit;
-  height: 50%;
+}
+.sub-charts {
+  display: none;
 }
 
 .search {

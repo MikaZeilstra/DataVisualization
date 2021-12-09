@@ -44,4 +44,4 @@ df2 = df2.append(NAdf) #merge both dataframes
 df2['price'] = df2['price'].astype(str)
 df2['price'] = df2['price'].str.replace('50','50+')
 
-df2.to_csv('RatingData.csv', index=False) #exporting to csv
+df2.to_json('RatingData.json', index=False) #exporting to csv

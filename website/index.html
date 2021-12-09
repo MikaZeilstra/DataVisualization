@@ -116,7 +116,8 @@
     const fetches = [
       fetch('../UserOwnedGames.json').then(response => response.json()),
       fetch('../GamesGenre.json').then(response => response.json()),
-      fetch('../GenreData.json').then(response => response.json())
+      fetch('../GenreData.json').then(response => response.json()),
+      d3.csv('../RatingData.csv')
     ];
 
 
@@ -131,6 +132,7 @@
       update_pie_chart_play_own = create_pie_chart("#svg_pie_play_own")
 
       load_search_bar();
+      createHeatMap("#datadiv");
     });
 
     function load_search_bar() {
@@ -183,13 +185,13 @@
         if (genre != "") {
           nr_genres += 1;
           d3.select("#tags").append("a")
-                          .attr("class", "app_tag")
-                          .text(genre)
-                          .on("click", function() {
-                            update_page_to_new_genre(genre)
-                          })
+            .attr("class", "app_tag")
+            .text(genre)
+            .on("click", function () {
+              update_page_to_new_genre(genre)
+            })
         }
-        
+
       })
       if (nr_genres != 0) {
         d3.select("#tags").attr("style", "display:flex")
@@ -228,14 +230,14 @@
     function prepare_dict(data, keys) {
       var ar = []
       for (const key of keys) {
-          const dict = {}
-          dict["name"] = key
-          var val = data[key]
-          if (Array.isArray(val)) {
-              val = val.reduce((a, b) => a + b, 0)
-          }
-          dict["value"] = val
-          ar.push(dict)
+        const dict = {}
+        dict["name"] = key
+        var val = data[key]
+        if (Array.isArray(val)) {
+          val = val.reduce((a, b) => a + b, 0)
+        }
+        dict["value"] = val
+        ar.push(dict)
       }
       return ar
     }
@@ -322,7 +324,6 @@
       return update;
     }
 
-
     function create_pie_chart(selector) {
 
       const viewport_width = 300;
@@ -394,18 +395,164 @@
       return update;
     }
 
+    function createHeatMap(selector) {
+      //Set the viewport and margins
+      const margin_left = 120;
+      const margin_top = 100;
+      
+      const viewport_width = document.getElementById("main").offsetWidth / 2;
+      const viewport_height = document.getElementById("main").offsetHeight;
+
+
+      const svg = d3.select(selector)
+                    .append("svg")
+                    .attr("width", viewport_width)
+                    .attr("height", viewport_height)
+
+      const width = viewport_width - 1.5* margin_left
+      const height = viewport_height - 1.5* margin_top
+
+      //Make the group element which contains the bars
+      const g = svg.append('g')
+        .attr('transform', `translate(${margin_left} , ${margin_top})`);
+
+      //Read the data
+      ratingData = data[3]
+      var myPrice = []
+      var myGenres = []
+      // Labels of row and columns -> unique identifier of the column called 'price' and 'genre'
+      ratingData.forEach((d) => {
+        myPrice.push(d.price)
+        myGenres.push(d.genre)
+      })
+
+      // Build X scales and axis:
+      var x = d3.scaleBand()
+        .range([0, width])
+        .domain(myPrice)
+        .padding(0.01);
+      g.append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x))
+
+      // X axis label
+      g.append("text")
+        .attr("transform",
+          "translate(" + (width / 2) + " ," +
+          (height + margin_top / 2) + ")")
+        .style("text-anchor", "middle")
+        .text("Price");
+
+      // Build Y scales and axis:
+      var y = d3.scaleBand()
+        .range([height, 0])
+        .domain(myGenres)
+        .padding(0.01);
+      g.append("g")
+        .call(d3.axisLeft(y));
+
+      // Y axis label
+      g.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - margin_left)
+        .attr("x", 0 - (height / 2))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Value");
+
+      // Build color scale
+      var myColor = d3.scaleSequential()
+        .interpolator(d3.interpolateSpectral)
+        .domain([1, 100])
+
+      let tooltipNode = document.createElement("div")
+      document.querySelector(selector).parentNode.appendChild(tooltipNode)
+      let tooltip = d3.select(tooltipNode)
+      tooltip
+        .style("opacity", 0)
+        .attr("class", "tooltip")
+        .style("background-color", "white")
+        .style("border", "solid")
+        .style("border-width", "2px")
+        .style("border-radius", "5px")
+        .style("padding", "5px")
+        .style("display", "inline")
+        .style("position", "fixed");
+
+      // Three function that change the tooltip when user hover / move / leave a cell
+      var mouseover = function (d) {
+        tooltip
+          .style("opacity", 0.9)
+      }
+      var mousemove = function (d) {
+        let data = d3.select(d.target).datum()
+        var pos_reviews = data.pos_reviews
+        var count = data.count
+        tooltip
+          .html("Positive Reviews: " + ((pos_reviews < 1) ? 'N/A' : "<b>" + pos_reviews + "</b>%") +
+            " | Games: <b>" + count + "</b>")
+          .style("left", (d3.pointer(event)[0] + 40) + "px")
+          .style("top", (d3.pointer(event)[1] + 40) + "px")
+      }
+
+      var mouseleave = function (d) {
+        tooltip.style("opacity", 0)
+      }
+
+      // add the squares
+      g.selectAll()
+        .data(ratingData, function (d) {
+          return d.price + ':' + d.genre;
+        })
+        .enter()
+        .append("rect")
+        .attr("x", function (d) {
+          return x(d.price)
+        })
+        .attr("y", function (d) {
+          return y(d.genre)
+        })
+        .attr("width", x.bandwidth())
+        .attr("height", y.bandwidth())
+        .style("fill", function (d) {
+          return myColor((d.pos_reviews < 1) ? NaN : d.pos_reviews)
+        }) //In order for empty entries to be black
+        .on("mouseover", mouseover)
+        .on("mousemove", mousemove)
+        .on("mouseleave", mouseleave)
+
+      // Graph title
+      g.append("text")
+        .attr("x", 0)
+        .attr("y", -40)
+        .attr("text-anchor", "left")
+        .style("font-size", "25px")
+        .style("font-family", "arial")
+        .text("Positive Reviews");
+
+      // Graph subtitle
+      g.append("text")
+        .attr("x", 0)
+        .attr("y", -15)
+        .attr("text-anchor", "left")
+        .style("font-size", "15px")
+        .style("font-family", "arial")
+        .style("fill", "grey")
+        .style("max-width", width)
+        .text("Percentage of positive reviews based on the game's genre and price");
+    }
+
+
     function handle_submit() {
       let option = document.getElementById("input_field").value
       if (Object.keys(data[0]).includes(option)) {
         document.getElementById("search").removeAttribute("error-tooltip");
         update_page_to_new_group(option)
 
-      }
-      else if (Object.keys(data[1]).includes(option)) {
+      } else if (Object.keys(data[1]).includes(option)) {
         document.getElementById("search").removeAttribute("error-tooltip");
         update_page_to_new_game(option);
-      }
-      else if (Object.keys(data[2]).includes(option)) {
+      } else if (Object.keys(data[2]).includes(option)) {
         document.getElementById("search").removeAttribute("error-tooltip");
         update_page_to_new_genre(option)
       } else {
@@ -434,7 +581,7 @@
       </button>
     </form>
   </div>
-  <div class="main">
+  <div class="main" id="main">
     <div id="summary">
       <div id="image"><img id="banner"></div>
       <div id="text">
@@ -447,13 +594,18 @@
       </div>
     </div>
     <div class="charts">
+      <div class="main-chart">
+        <div id="datadiv"></div>
+      </div>
+      <div class="sub-charts">
       <div id="pie_chart_rev">
-        <h3>Ratio Positive to Negative Reviews</h3><svg id="svg_pie_review" class="pie_chart review"></svg>
+        <h3></h3><svg id="svg_pie_review" class="pie_chart review"></svg>
       </div>
       <div id="pie_chart_po"><svg id="svg_pie_play_own" class="pie_chart p_own"></svg></div>
       <div class="bar_chart" id="bar_chart" style="display: none;"><svg id="svg_bar_chart"
           class="bar_chart bar_playing_time"></svg></div>
     </div>
+  </div>
   </div>
 </body>
 
