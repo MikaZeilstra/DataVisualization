@@ -21,7 +21,7 @@ input[data-optgroup-list] + datalist + .list-options {
 
 input[data-optgroup-list] + datalist + .list-options summary {
 	color: #777784;
-	line-height: 1;
+	line-height: 0.1vh;
 	width: 100%;
 }
 
