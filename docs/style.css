@@ -9,10 +9,10 @@ body {
 }
 .main {
   margin: 1vw;
-  height: 85vh;  
+  height: 80vh;  
 }
 .main-chart {
-  height: 85vh;
+  height: inherit;
   overflow: auto;
 }
 #game_summary{
@@ -24,44 +24,59 @@ body {
 #genre-group-summary {
   display: none;
   width: inherit;
-  height: 10%;
+  height: 8vh;
 }
 #g_header {
   text-align: center;
-  font-size: 4vw;
+  font-size: 5vh;
 }
 .charts {
   width: inherit;
-  height: 80%;
 }
 
 #stacked_bar_chart {
-  width: 40%;
+  width: 50%;
   height: 100%;
   display: flex;
   float: right;
+  align-items: center;
+  flex-direction: column;
+}
+#svg_stacked_bar_chart {
+  width: 80%;
+  height: 100%
+}
+
+#stacked_bar_chart_N{
+  width: 5vw;
+  height: 5vh;
+  font-size: 3vh;
 }
 #datadiv {
-  width: 60%;
+  width: 50%;
   height: 100%;
-  float: left;
   display: flex;
+  float: left;
 }
 
 .search_all {
+  float:right;
+  margin-right: 25%;
   width: 50%;
+  height: 50%;
   display: flex;
 }
 
 .searchTerm {
   width: 100%;
-  border: 4px solid #66c0f4;
+  padding: 0.5vh;
+  border: 1vh solid #66c0f4;
   border-right: none;
-  padding: 5px;
-  height: 2vw;
-  border-radius: 6px 0 0 6px;
+  border-radius: 1.5vh 0 0 1.5vh;
+  height: auto;
   outline: none;
   color: #9DBFAF;
+  font-size: 2vh;
 }
 
 .searchTerm:focus{
@@ -70,14 +85,35 @@ body {
 
 .searchButton {
   width: 3vw;
-  border: 1px solid #66c0f4;
+  border: .3vh solid #66c0f4;
   background: #66c0f4;
-  text-align: center;
+  align-items: top;
   color: #fff;
-  border-radius: 0 5px 5px 0;
+  border-radius: 0 1.5vh 1.5vh 0;
   cursor: pointer;
   font-size: 20px;
-  min-width: 30px;
+  position: relative;
+}
+
+#homeButton {
+  background-color: transparent;
+  border-color: transparent;
+  width: 60%;
+  height: 60%;
+  margin: 2vh;
+  align-items: top;
+  cursor: pointer;
+  font-size: 20px;
+  position: relative;
+}
+
+#svg_button {
+  position: absolute;
+  top: 50%;
+  left:50%;
+  -webkit-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
 }
 /* list-options-search {
   position: relative;
@@ -87,11 +123,8 @@ body {
 .wrap{
   background-color: #171a21;
   width: inherit;
-  /* position: relative; */
   height: 10vh;
-    /* height: 3vw; */
   display: flex;
-  justify-content: center;
   align-items: center;
   min-height: 2vh;
 }
@@ -163,11 +196,15 @@ body {
   width : 100%;
   height: 100%;
 }
+#bar_chart_users {
+  width: 50%;
+  height: 100%;
+  text-align: center;
+  justify-content: center;
+
+}
 #svg_bar_chart_users{
   height: 50vh;
-}
-[hover-tooltip]:hover{
-  
 }
 #stacked-tooltip {
   position: absolute;

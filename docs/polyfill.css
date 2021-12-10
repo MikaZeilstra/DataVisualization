@@ -7,13 +7,14 @@ label {
 input[data-optgroup-list] + datalist + .list-options {
     z-index: 1;
 	margin-top: 3vw;
-	margin-left: 1px;
-	width: 47vw;
+	margin-right: auto;
+	width: 46vw;
 	background-color: white;
 	font-size: smaller;
-	outline: 1px solid #72acea;
-	padding: 0.5rem 0;
-	line-height: 1.75;
+	outline: 0.1vh solid #72acea;
+	padding: 0.8vh 0.5vw;
+	padding-right: 0;
+	line-height: 2.5vh;
     max-height: 30vh;
 	position: absolute;
     overflow: auto;
@@ -21,12 +22,16 @@ input[data-optgroup-list] + datalist + .list-options {
 
 input[data-optgroup-list] + datalist + .list-options summary {
 	color: #777784;
-	line-height: 0.1vh;
+	line-height: 2.5vh;
 	width: 100%;
+	font-size: 2vh;
+	text-align: left;
+	margin-left: auto;
+	font-weight: lighter;
 }
 
 input[data-optgroup-list] + datalist + .list-options summary::-webkit-details-marker {
-	fill: #777784;
+	fill: #26264b;
 }
 
 input[data-optgroup-list] + datalist + .list-options ul {
@@ -35,11 +40,15 @@ input[data-optgroup-list] + datalist + .list-options ul {
 }
 
 input[data-optgroup-list] + datalist + .list-options > ul > li:not(:last-child) {
-	padding-bottom: .5rem;
+	padding-bottom: 1vh;
 }
 
 input[data-optgroup-list] + datalist + .list-options > ul .option {
-	padding: 0 .5rem;
+	color: #777784;
+	padding: 0 1.5vw;
+    font-weight: bolder;
+    font-size: 1.5vh;
+    text-align: right;
 }
 
 input[data-optgroup-list] + datalist + .list-options > ul .option:hover {
@@ -47,24 +56,13 @@ input[data-optgroup-list] + datalist + .list-options > ul .option:hover {
 }
 
 input[data-optgroup-list] + datalist + .list-options > ul ul li {
-	padding-left: 1rem;
+	padding-left: 0.5vw;
 }
 
-input[data-optgroup-list] + datalist + .list-options > ul ul li:not([hidden]) {
+/* input[data-optgroup-list] + datalist + .list-options > ul ul li:not([hidden]) {
 	display: flex;
-}
+} */
 
-input[data-optgroup-list] + datalist + .list-options > ul ul li span:first-child {
-	margin-right: 3ch;
-	font-weight: bolder;
-}
-
-input[data-optgroup-list] + datalist + .list-options > ul ul li span:last-child {
-	text-align: right;
-	margin-left: auto;
-	color: #777784;
-	font-weight: lighter;
-}
 
 input[data-optgroup-list] + datalist + .list-options ul {
 	list-style-type: none;

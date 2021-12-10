@@ -183,10 +183,11 @@
       let topN = getGameTopNPlayTime(Object.values(data[2]),(d)=> d.user_minutes.reduce(((a,b) => a + b),0), 10)
       update_bar_chart(topN.map((e) => e.user_minutes.reduce(((a,b) => a + b),0)),topN.map((e) => e.genre))
 
-      document.getElementById("stacked_bar_chart").setAttribute("style", "display:block;");
+      document.getElementById("stacked_bar_chart").setAttribute("style", "display:inline-flex;");
       document.getElementById("stacked_bar_chart_N").addEventListener("input", (e) => update_stacked_bar_chart(
-        wrangle_stacked_bar_chart(Object.values(data[2]),"genre"), Object.keys(data[0]), ("Fraction of top N games for " + genre + " per group")));
+        wrangle_stacked_bar_chart(Object.values(data[2]),"genre"), Object.keys(data[0]), "Fraction of top N genres per group"));
       createHeatMap("#svg_heat_map");
+      document.getElementById("datadiv").setAttribute("style", "display: flex")
       update_stacked_bar_chart(wrangle_stacked_bar_chart(Object.values(data[2]),"genre"), Object.keys(data[0]), "Fraction of top N genres per group");
     }
 
@@ -268,7 +269,7 @@
         value: user_cp[0]["value"] - user_cp[1]["value"]
       }
 
-      update_pie_chart_play_own(ar, "Fraction users that played and not played given that they own it")
+      update_pie_chart_play_own(ar, "Play score")
       d3.select("#page_header").html(game);
       d3.select("#bar_chart_header").html("Number of users per group"); // Maybe add text to actual svg?
       document.getElementById("game_summary").setAttribute("style", "display:flex")
@@ -297,7 +298,7 @@
       console.log("Switched to new genre:", genre)
       document.getElementById("genre-group-summary").setAttribute("style", "display:block");
       document.getElementById("g_header").innerText = genre
-      document.getElementById("stacked_bar_chart").setAttribute("style", "display:block;");
+      document.getElementById("stacked_bar_chart").setAttribute("style", "display:flex;");
       document.getElementById("bar_chart_users").setAttribute("style", "display:block;");
       let topNgroup = getGameTopNPlayTime(Object.values(data[1]).filter(d => d.tags.includes(genre)),(d)=>  d.user_minutes.reduce((a, b) => a + b, 0), 10);
       update_bar_chart(topNgroup.map(d => d.user_minutes.reduce((a, b) => a + b, 0)),topNgroup.map(d => d.name))
@@ -347,10 +348,11 @@
 
     function create_stacked_bar_chart(selector) {
       //Set the viewport and margins
-      const viewport_width = 400;
-      const viewport_height = 500;
 
-      const margin_left = 40;
+      const viewport_width = 1000;
+      const viewport_height = 1000;
+      //Set the viewport and margins
+      const margin_left = 70;
       const margin_top = 100;
 
 
@@ -363,10 +365,11 @@
         .style("opacity", 0)
         .attr("id", "stacked-tooltip")
         .style("background-color", "white")
-        .style("postion","absolute")
-        .style("border-radius", "5px")
-        .style("border", "2px")
-        .style("border-color","black")
+        .style("position", "absolute")
+        .style("font-size", "2vh")
+        .style("border", "solid")
+        .style("border-width", "0.1ch")
+        .style("border-radius", "0.5ch");
 
       var mouseover = function (d) {
         let data = d3.select(d.target).datum();
@@ -378,11 +381,10 @@
         d3.selectAll("." + d.target.getAttribute("class").split(" ")[0]).style("filter","brightness(0.5)");
       }
       var mousemove = function (d) {
-        tooltip
-        
+        tooltip 
         .style("transform","translateY(-55%)")  
           .style("left", d.pageX  +"px")
-          .style("top", d.pageY - 20 + "px")
+          .style("top", d.pageY - 15 + "px")
       }
       var mouseleave = function (d) {
         tooltip
@@ -411,20 +413,20 @@
       const yscale = d3.scaleLinear().range([0, height]);
 
       const xaxis = d3.axisBottom().scale(xscale);
-      const g_xaxis = g.append('g').attr('class', 'x axis');
+      const g_xaxis = g.append('g').attr('class', 'x axis').style("font-size", "15px");
       const yaxis = d3.axisLeft().scale(yscale).tickFormat(function (d) {
         return d + "%"
       });
-      const g_yaxis = g.append('g').attr('class', 'y axis');
+      const g_yaxis = g.append('g').attr('class', 'y axis').style("font-size", "20px");
 
       // X axis label
       g.append("text")
         .attr("transform",
           "translate(" + (width / 2) + " ," +
-          (height + margin_top / 3) + ")")
+          (height + margin_top / 1.5) + ")")
         .style("text-anchor", "middle")
         .text("Groups")
-        .style("font-size", "12px");
+        .style("font-size", "20px");
 
 
       //Update function to be retured
@@ -436,7 +438,7 @@
             .attr("x", 0)
             .attr("y", -20)
             .attr("text-anchor", "left")
-            .style("font-size", "15px")
+            .style("font-size", "30px")
             .style("font-family", "arial")
             .text(title)
 
@@ -467,10 +469,10 @@
           .attr('width', (d) => xscale.bandwidth(d.label))
           .attr('height', 0)
           .attr('class', (d) => 'bar_chart_bar_' + d.game)
+          .on("click",mouseClick)
           .on("mouseover", mouseover)
           .on("mousemove", mousemove)
-          .on("mouseleave", mouseleave)
-          .on("click",mouseClick);
+          .on("mouseleave", mouseleave);
 
         //Set the correct values for all the bars
 
@@ -510,15 +512,14 @@
       document.querySelector(selector).parentNode.appendChild(tooltipNode)
       let tooltip = d3.select(tooltipNode)
       tooltip
-        .style("opacity", 0)
-        .attr("class", "tooltip")
+      .style("opacity", 0)
+        .attr("id", "stacked-tooltip")
         .style("background-color", "white")
+        .style("position", "absolute")
+        .style("font-size", "2vh")
         .style("border", "solid")
-        .style("border-width", "2px")
-        .style("border-radius", "5px")
-        .style("padding", "5px")
-        .style("display", "inline")
-        .style("position", "fixed");
+        .style("border-width", "0.1ch")
+        .style("border-radius", "0.5ch");
 
       var mouseover = function (d) {
         tooltip
@@ -534,11 +535,12 @@
       }
       var mouseleave = function (d) {
         tooltip
-          .style("opacity", 0)
+          .style("opacity", 1)
           d3.selectAll("." + d.target.getAttribute("class").split(" ")[0]).style("filter","brightness(1)");
       }
 
       var mouseClick = function (d) {
+        console.log("CLICKED")
         handle_submit(d.target.getAttribute("data-label"))
         d3.selectAll("." + d.target.getAttribute("class").split(" ")[0]).style("filter","brightness(1)");
       }
@@ -650,15 +652,12 @@
       function update(new_data, title) {
         
         g.select(".title").remove()
-        svg.append("div")
+        g.append("text")
             .attr("class", "title")
-            .attr("x", width/2)
-            .attr("y", + margin_top)
+            .attr("y", -margin_top)
             .attr("text-anchor", "middle")
-            .style("font-size", "25px")
+            .style("font-size", "30px")
             .style("font-family", "arial")
-            .style("align-content", "stretch")
-            .style("flex-wrap", "wrap")
             .text(title)
 
         const pied = pie(new_data)
@@ -770,15 +769,14 @@
       document.querySelector(selector).parentNode.appendChild(tooltipNode)
       let tooltip = d3.select(tooltipNode)
       tooltip
-        .style("opacity", 0)
-        .attr("class", "tooltip")
+      .style("opacity", 0)
+        .attr("id", "stacked-tooltip")
         .style("background-color", "white")
+        .style("position", "absolute")
+        .style("font-size", "2vh")
         .style("border", "solid")
-        .style("border-width", "2px")
-        .style("border-radius", "5px")
-        .style("padding", "5px")
-        .style("display", "inline")
-        .style("position", "fixed");
+        .style("border-width", "0.1ch")
+        .style("border-radius", "0.5ch");
 
       // Three function that change the tooltip when user hover / move / leave a cell
       var mouseover = function (d) {
@@ -790,10 +788,11 @@
         var pos_reviews = data.pos_reviews
         var count = data.count
         tooltip
+          .style("transform","translateY(-55%)")  
+          .style("left", d.pageX  +"px")
+          .style("top", d.pageY - 10 + "px")
           .html("Positive Reviews: " + ((pos_reviews < 1) ? 'N/A' : "<b>" + pos_reviews + "</b>%") +
             " | Games: <b>" + count + "</b>")
-          .style("left", (d3.pointer(event)[0] + 40) + "px")
-          .style("top", (d3.pointer(event)[1] + 40) + "px")
       }
 
       var mouseleave = function (d) {
@@ -904,6 +903,11 @@
 
 <body style="background-color:#c7d5e0">
   <div class="wrap">
+    <div id="home_box" style="margin-left:9%;margin-right: 9%; width: 7%; height:100%;align-items: center;">
+      <button id="homeButton" onclick="cleanup_page();update_page_to_landing()">
+      <i class="fa fa-home" style="color: white; font-size: 6vh;"></i>
+    </button>
+    </div>
     <form class="search_all" id="search_all" onsubmit='handle_submit(document.getElementById("input_field").value)'>
       <input data-optgroup-list="search_options" class="searchTerm" id="input_field" type="select"></input>
       <datalist id="search_options">
@@ -914,8 +918,11 @@
       <div class="list-options" id="list-options-search" hidden>
       </div>
       <!-- <input type="text" class="searchTerm" placeholder="What are you looking for?"> -->
-      <button type="submit" class="searchButton" id=searchButton onclick="handle_submit()">
-        <i class="fa fa-search"></i>
+      <button type="submit" class="searchButton" id=searchButton onclick="handle_submit()" height="100%">
+        <svg id="svg_button" class="search-icon" viewBox="0 0 24 24">
+          <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+          <path d="M0 0h24v24H0z" fill="none"/>
+      </svg>
       </button>
     </form>
   </div>
@@ -941,21 +948,17 @@
       <h1 id="g_header"></h1>
     </div>
     <div class="charts">
-      <div class="sub-charts">
         <div id="datadiv">
           <svg id="svg_heat_map"></svg>
         </div>
         <div id="stacked_bar_chart">
-          <input type="number" min="1" max="10" value="5" id="stacked_bar_chart_N" style="display: None;"><br>
+            <input type="number" min="1" max="10" value="5" id="stacked_bar_chart_N">  
           <svg id="svg_stacked_bar_chart"></svg>
         </div>
-        
-        <
         <div id="bar_chart_users" style="display: none;">
           <h3 id="bar_chart_header">Number of user per group</h3>
           <svg id="svg_bar_chart_users" class="bar_chart bar_playing_time"></svg>
         </div>
-      </div>
     </div>
   </div>
 </body>
