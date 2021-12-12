@@ -43,14 +43,16 @@ body {
   flex-direction: column;
 }
 #svg_stacked_bar_chart {
-  width: 80%;
+  width: 70%;
   height: 100%
 }
 
 #stacked_bar_chart_N{
   width: 5vw;
-  height: 5vh;
-  font-size: 3vh;
+  height: 4vh;
+  font-size: 4vh;
+  padding: 1vh;
+  border-width: 0.3vh;
 }
 #datadiv {
   width: 50%;
@@ -100,10 +102,8 @@ body {
   border-color: transparent;
   width: 60%;
   height: 60%;
-  margin: 2vh;
   align-items: top;
   cursor: pointer;
-  font-size: 20px;
   position: relative;
 }
 
@@ -147,9 +147,13 @@ body {
   margin-left: 0;    
 }
 #page_header{
+  font-size: 4vh;
   overflow: hidden;
   border-bottom: none;
   margin: 0px;
+}
+.description_text {
+  font-size: 1.8vh
 }
 #image {
   padding: 2vw;
@@ -159,7 +163,7 @@ body {
 }
 #game-text {
   padding: 2vw;
-  width: 40%;
+  width: fit-content;
   vertical-align:top;
   display: inline-block;
 }
@@ -176,7 +180,7 @@ body {
   display: block;
 }
 .app_tag {
-  padding: 0 7px;
+  padding: 0 1vw;
   color: #c7d5e0;
   background-color:#2a475e;
   margin-right: 2px;
@@ -188,24 +192,25 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.bar_chart {
-  width: auto;
-  height: 30vh;
+#pie_chart_rev {
+  width: 20vw;
+}
+#pie_chart_po {
+  width: 20vw;
 }
 .pie_chart {
   width : 100%;
   height: 100%;
 }
 #bar_chart_users {
-  width: 50%;
+  width: 40%;
   height: 100%;
-  text-align: center;
-  justify-content: center;
+  display: flex;
+  float: left;
+
 
 }
-#svg_bar_chart_users{
-  height: 50vh;
-}
+
 #stacked-tooltip {
   position: absolute;
 }

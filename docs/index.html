@@ -181,8 +181,8 @@
       console.log("Switched to landing")
       current_page_type = Page_type.Landing;
       let topN = getGameTopNPlayTime(Object.values(data[2]),(d)=> d.user_minutes.reduce(((a,b) => a + b),0), 10)
-      update_bar_chart(topN.map((e) => e.user_minutes.reduce(((a,b) => a + b),0)),topN.map((e) => e.genre))
-
+      update_bar_chart(topN.map((e) => e.user_minutes.reduce(((a,b) => a + b),0)),topN.map((e) => e.genre), "Top 10 Most popular game by playing times", "Total time played in minutes", "Game title")
+      document.getElementById("bar_chart_users").setAttribute("style", "display:flex;");
       document.getElementById("stacked_bar_chart").setAttribute("style", "display:inline-flex;");
       document.getElementById("stacked_bar_chart_N").addEventListener("input", (e) => update_stacked_bar_chart(
         wrangle_stacked_bar_chart(Object.values(data[2]),"genre"), Object.keys(data[0]), "Fraction of top N genres per group"));
@@ -196,7 +196,7 @@
       document.getElementById("g_header").innerText = group
       document.getElementById("bar_chart_users").setAttribute("style", "display:block;");
       let topNgroup = getGameTopNPlayTime(Object.values(data[1]),(d)=> d.user_minutes[Object.keys(data[0]).indexOf(group)], 10)
-      update_bar_chart(topNgroup.map(d => d.user_minutes[Object.keys(data[0]).indexOf(group)]),topNgroup.map(d => d.name))
+      update_bar_chart(topNgroup.map(d => d.user_minutes[Object.keys(data[0]).indexOf(group)]),topNgroup.map(d => d.name), "Top 10 most popular games for " + group, "Total time played in minutes", "Game title")
       d3.select("#bar_chart_header").html("Playtime for top 10 games of this group");
     }
 
@@ -253,10 +253,10 @@
       if (price == null) {
         price = 0
       }
-      d3.select("#price").text("Price:  " + price / 100)
+      d3.select("#price").text("Price:  " + price / 100).attr("style", "display:block")
       d3.select("#bar_chart").attr('style', 'display:block')
 
-      update_bar_chart(data[1][game]["user_count"], Object.keys(data[0]));
+      update_bar_chart(data[1][game]["user_count"], Object.keys(data[0]), "Number of players in each group", "Users", "Groups", 40, 40);
       update_pie_chart_reviews(prepare_dict(data[1][game], ['positive_reviews', 'negative_reviews']), "Review score")
       var user_cp = prepare_dict(data[1][game], ['user_count', 'user_played'])
       var ar = []
@@ -301,7 +301,7 @@
       document.getElementById("stacked_bar_chart").setAttribute("style", "display:flex;");
       document.getElementById("bar_chart_users").setAttribute("style", "display:block;");
       let topNgroup = getGameTopNPlayTime(Object.values(data[1]).filter(d => d.tags.includes(genre)),(d)=>  d.user_minutes.reduce((a, b) => a + b, 0), 10);
-      update_bar_chart(topNgroup.map(d => d.user_minutes.reduce((a, b) => a + b, 0)),topNgroup.map(d => d.name))
+      update_bar_chart(topNgroup.map(d => d.user_minutes.reduce((a, b) => a + b, 0)),topNgroup.map(d => d.name), "Top 10 most popular games in " + genre, "Total time played in minutes", "Game titles")
       d3.select("#bar_chart_header").html("Playtime for top 10 games of this genre");
 
       document.getElementById("stacked_bar_chart_N").addEventListener("input", (e) => update_stacked_bar_chart(
@@ -426,7 +426,7 @@
           (height + margin_top / 1.5) + ")")
         .style("text-anchor", "middle")
         .text("Groups")
-        .style("font-size", "20px");
+        .style("font-size", "25px");
 
 
       //Update function to be retured
@@ -438,7 +438,7 @@
             .attr("x", 0)
             .attr("y", -20)
             .attr("text-anchor", "left")
-            .style("font-size", "30px")
+            .style("font-size", "35px")
             .style("font-family", "arial")
             .text(title)
 
@@ -497,13 +497,13 @@
     //This function creates setsup the bar chart by providing a update function
     function create_bar_chart(selector) {
       //Set the viewport and margins
-      const viewport_width = 300;
-      const viewport_height = 200;
+      const viewport_width = 500;
+      const viewport_height = 400;
       const margin = {
-        top : 0,
-        left : 50,
-        bottom : 60,
-        right : 50
+        top : 60,
+        left : 100,
+        bottom : 90,
+        right : 70
       }
 
 
@@ -540,7 +540,7 @@
       }
 
       var mouseClick = function (d) {
-        console.log("CLICKED")
+        console.log("OKE")
         handle_submit(d.target.getAttribute("data-label"))
         d3.selectAll("." + d.target.getAttribute("class").split(" ")[0]).style("filter","brightness(1)");
       }
@@ -568,9 +568,43 @@
         return e;
       });
       const g_yaxis = g.append('g').attr('class', 'y axis');
+      
+      // X axis label
+      g.append("text")
+            .attr("id", "bar_chart_x_label")
+            .attr("x", width/2)
+            .attr("y", height + margin.top)
+            .style("text-anchor", "middle")
+            .text("")
+            .style("font-size", "12px");  
 
+      // Y axis label
+      g.append("text")
+        .attr("id", "bar_chart_y_label")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - margin.left)
+        .attr("x", 0 - (height / 2))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("yaxis_t")
+        .style("font-size", "12px");
       //Update function to be retured
-      function update(new_data, labels) {
+      function update(new_data, labels, title, yaxis_t, xaxis_t, ylabel_loc=margin.left, xlabel_loc=margin.top) {
+
+        g.select(".title").remove()
+        g.append("text")
+            .attr("class", "title")
+            .attr("x", 0)
+            .attr("y", -20)
+            .attr("text-anchor", "left")
+            .style("font-size", "15px")
+            .style("font-family", "arial")
+            .text(title)
+        
+        console.log(ylabel_loc, xlabel_loc)
+        g.select("#bar_chart_x_label").text(xaxis_t).attr("y", height + xlabel_loc)
+        g.select("#bar_chart_y_label").text(yaxis_t).attr("y", 0 - ylabel_loc)
+                                                   
 
         //Create the axis with the new data.
         xscale.domain(labels).padding(0.1);
@@ -932,9 +966,9 @@
       <div id="game-text">
         <h1 id="page_header"></h1>
         <div id="game_text">
-          <p id="description"></p>
-          <div id="tags" style= "display:none;font-size: 1vw;">Genres:</div>
-          <h3 id="price" style= "display:none">Price: </h3>
+          <p id="description" class="description_text"></p>
+          <div id="tags" class="description_text", style= "display:none">Genres:</div>
+          <h3 id="price" class="description_text", style= "display:none">Price: </h3>
         </div>
       </div>
       <div id="pie_chart_rev">
@@ -956,7 +990,7 @@
           <svg id="svg_stacked_bar_chart"></svg>
         </div>
         <div id="bar_chart_users" style="display: none;">
-          <h3 id="bar_chart_header">Number of user per group</h3>
+          <!-- <h3 id="bar_chart_header">Number of user per group</h3> -->
           <svg id="svg_bar_chart_users" class="bar_chart bar_playing_time"></svg>
         </div>
     </div>
