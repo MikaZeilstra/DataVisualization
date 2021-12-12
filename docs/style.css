@@ -1,35 +1,42 @@
-*{
-  --Searchsize : 10vh;
+* {
+  --Searchsize: 10vh;
 }
+
 body {
   background-color: #c7d5e0;
   color: #171a21;
   font-family: Arial, Helvetica, sans-serif;
   margin: 0px;
 }
+
 .main {
   margin: 1vw;
-  height: 80vh;  
+  height: 80vh;
 }
+
 .main-chart {
   height: inherit;
   overflow: auto;
 }
-#game_summary{
+
+#game_summary {
   display: none;
   width: inherit;
   height: fit-content;
   max-height: 30%;
 }
+
 #genre-group-summary {
   display: none;
   width: inherit;
   height: 8vh;
 }
+
 #g_header {
   text-align: center;
   font-size: 5vh;
 }
+
 .charts {
   width: inherit;
 }
@@ -42,18 +49,20 @@ body {
   align-items: center;
   flex-direction: column;
 }
+
 #svg_stacked_bar_chart {
   width: 70%;
   height: 100%
 }
 
-#stacked_bar_chart_N{
+#stacked_bar_chart_N {
   width: 5vw;
   height: 4vh;
   font-size: 4vh;
   padding: 1vh;
   border-width: 0.3vh;
 }
+
 #datadiv {
   width: 50%;
   height: 100%;
@@ -62,7 +71,7 @@ body {
 }
 
 .search_all {
-  float:right;
+  float: right;
   margin-right: 25%;
   width: 50%;
   height: 50%;
@@ -81,7 +90,7 @@ body {
   font-size: 2vh;
 }
 
-.searchTerm:focus{
+.searchTerm:focus {
   color: #66c0f4;
 }
 
@@ -110,17 +119,18 @@ body {
 #svg_button {
   position: absolute;
   top: 50%;
-  left:50%;
+  left: 50%;
   -webkit-transform: translate(-50%, -50%);
   -ms-transform: translate(-50%, -50%);
   transform: translate(-50%, -50%);
 }
+
 /* list-options-search {
   position: relative;
 } */
 
 /*Resize the wrap to see the search bar change!*/
-.wrap{
+.wrap {
   background-color: #171a21;
   width: inherit;
   height: 10vh;
@@ -134,44 +144,50 @@ body {
   content: attr(error-tooltip);
   top: 19vh;
   width: 46vw;
-  position: absolute;    
+  position: absolute;
   /* customizable */
   transition: all 0.5s ease;
   padding: 1vw 1vh;
   color: #333;
   border-radius: 10px;
-  
+
   /* customizable */
   background: crimson;
   margin-top: -8vh;
-  margin-left: 0;    
+  margin-left: 0;
 }
-#page_header{
+
+#page_header {
   font-size: 4vh;
   overflow: hidden;
   border-bottom: none;
   margin: 0px;
 }
+
 .description_text {
   font-size: 1.8vh
 }
+
 #image {
   padding: 2vw;
   width: 25%;
-  vertical-align:top;
+  vertical-align: top;
   display: inline-block;
 }
+
 #game-text {
   padding: 2vw;
   width: fit-content;
-  vertical-align:top;
+  vertical-align: top;
   display: inline-block;
 }
+
 #banner {
   border-radius: 2px;
-  max-width:100%;
-  max-height:100%;
+  max-width: 100%;
+  max-height: 100%;
 }
+
 #tags {
   align-items: baseline;
   justify-content: left;
@@ -179,10 +195,11 @@ body {
   flex-wrap: wrap;
   display: block;
 }
+
 .app_tag {
   padding: 0 1vw;
   color: #c7d5e0;
-  background-color:#2a475e;
+  background-color: #2a475e;
   margin-right: 2px;
   border-radius: 2px;
   cursor: pointer;
@@ -192,28 +209,31 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 #pie_chart_rev {
   width: 20vw;
 }
+
 #pie_chart_po {
   width: 20vw;
 }
+
 .pie_chart {
-  width : 100%;
+  width: 100%;
   height: 100%;
 }
+
 #bar_chart_users {
   width: 40%;
   height: 100%;
   display: flex;
   float: left;
-
-
 }
 
 #stacked-tooltip {
   position: absolute;
 }
-.bar_chart_bar{
-  fill : blue
+
+.bar_chart_bar {
+  fill: blue
 }
