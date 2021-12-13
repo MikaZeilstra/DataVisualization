@@ -141,6 +141,7 @@
     var data = [];
     var update_bar_chart;
     var update_stacked_bar_chart;
+    var update_scatterplot
 
     document.addEventListener("DOMContentLoaded", async () => {
       data = await Promise.all(fetches);
@@ -148,6 +149,7 @@
       update_stacked_bar_chart = create_stacked_bar_chart("#svg_stacked_bar_chart");
       update_pie_chart_reviews = create_pie_chart("#svg_pie_review")
       update_pie_chart_play_own = create_pie_chart("#svg_pie_play_own")
+      update_scatterplot = create_scatterplot("#scatterplot_price")
 
       load_search_bar();
       update_page_to_landing();
@@ -300,6 +302,8 @@
       document.getElementById("g_header").innerText = genre
       document.getElementById("stacked_bar_chart").setAttribute("style", "display:flex;");
       document.getElementById("bar_chart_users").setAttribute("style", "display:block;");
+      document.getElementById("scatterplot_price").setAttribute("style", "display:block;");
+      
       let topNgroup = getGameTopNPlayTime(Object.values(data[1]).filter(d => d.tags.includes(genre)),(d)=>  d.user_minutes.reduce((a, b) => a + b, 0), 10);
       update_bar_chart(topNgroup.map(d => d.user_minutes.reduce((a, b) => a + b, 0)),topNgroup.map(d => d.name), "Top 10 most popular games in " + genre, "Total time played in minutes", "Game titles")
       d3.select("#bar_chart_header").html("Playtime for top 10 games of this genre");
@@ -307,7 +311,7 @@
       document.getElementById("stacked_bar_chart_N").addEventListener("input", (e) => update_stacked_bar_chart(
         wrangle_stacked_bar_chart(Object.values(data[1]).filter((f) => f.tags.includes(genre)),"name"), Object.keys(data[0]), "Fraction of top N games for " + genre + " per group"));
       update_stacked_bar_chart(wrangle_stacked_bar_chart(Object.values(data[1]).filter((f) => f.tags.includes(genre)),"name"), Object.keys(data[0]), "Fraction of top N games for " + genre + " per group");
-
+      update_scatterplot(genre)
 
     }
 
@@ -492,6 +496,108 @@
 
       }
       return update
+    }
+
+    //Creates the scatterplot
+    function create_scatterplot(selector)
+    {
+      //custom margins
+      const l2 = 10; 
+      const t2 = 30;
+
+      var margin = {top: 10, right: 30, bottom: 100, left: 60},
+      width = 460 - margin.left - margin.right,
+      height = 400 - margin.top - margin.bottom;
+
+      // append the svg object to the body of the page
+      var svg = d3.select(selector)
+      .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+        .attr("transform",
+              "translate(" + margin.left + "," + margin.top + ")");
+
+      const g = svg.append('g')
+      .attr('transform', `translate(${l2} , ${t2})`);
+
+      //Read the data
+      ratingData = data[3]
+      ratingGenreData = [] //data filtered for specific genre
+
+      // Add X axis
+      var x = d3.scaleLinear()
+        .domain([0, 50])
+        .range([0, width]);
+      svg.append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x));
+      
+        // Add Y axis
+      var y = d3.scaleLinear()
+        .domain( [0, 100])
+        .range([ height, 0 ]);
+      svg.append("g")
+        .call(d3.axisLeft(y));
+      
+      // X axis label
+      g.append("text")
+      .attr("transform",
+          "translate(" + (width / 2) + " ," +
+          (height + t2 / 2) + ")")
+      .style("text-anchor", "middle")
+      .text("Price")
+      .style("font-size", "25px");
+
+      // Y axis label
+      g.append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 0 - (l2 * 7))
+      .attr("x", 0 - (height / 2))
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .text("Positive Rating")
+      .style("font-size", "20px");
+    
+      function update(selectedGenre)
+      {
+        //TODO remove existing dots and line
+        //svg.selectAll("dot").remove();
+        //svg.select(".scatterpath").remove();
+
+        //populate filtered genre data array
+        ratingData.forEach((d) => {
+          if(d.genre == selectedGenre)
+          {
+            ratingGenreData.push({price: d.price.replace(/\D/g,''), pos_reviews: d.pos_reviews})
+          }
+        })
+
+        // Add the scatterplot line
+        svg.append("path")
+          .datum(ratingGenreData)
+          .attr("fill", "none")
+          .attr("stroke", "#69b3a2")
+          .attr("stroke-width", 1.5)
+          .attr('class','scatterpath')
+          .attr("d", d3.line()
+            .x(function(d) { return x(d.price) })
+            .y(function(d) { return y(d.pos_reviews) })
+            )
+      
+        // Add the points
+        svg
+          .append("g")
+          .selectAll("dot")
+          .data(ratingGenreData)
+          .enter()
+          .append("circle")
+            .attr("cx", function(d) { return x(d.price) } )
+            .attr("cy", function(d) { return y(d.pos_reviews) } )
+            .attr("r", 5)
+            .attr("fill", "#69b3a2")
+      }
+      return update;
     }
 
     //This function creates setsup the bar chart by providing a update function
@@ -848,6 +954,7 @@
         })
         .attr("width", x.bandwidth())
         .attr("height", y.bandwidth())
+        .attr('class', (d) => 'bar_chart_bar_' + d.genre.replace(/\W/g, '')  + " bar_chart_bar")
         .style("fill", function (d) {
           return myColor((d.pos_reviews < 1) ? NaN : d.pos_reviews)
         }) //In order for empty entries to be black
@@ -929,6 +1036,7 @@
         document.getElementById("genre-group-summary").setAttribute("style", "display:none")
         document.getElementById("genre-group-summary").setAttribute("style", "display:none")
         document.getElementById("bar_chart_users").setAttribute("style", "display:none;");
+        document.getElementById("scatterplot_price").setAttribute("style", "display:none;");
       }
 
     }
@@ -992,6 +1100,9 @@
         <div id="bar_chart_users" style="display: none;">
           <!-- <h3 id="bar_chart_header">Number of user per group</h3> -->
           <svg id="svg_bar_chart_users" class="bar_chart bar_playing_time"></svg>
+        </div>
+        <div id="scatterplot_price" style="display: none;">
+          <svg id="scatterplot_price"></svg>
         </div>
     </div>
   </div>
