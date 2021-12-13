@@ -501,6 +501,8 @@
     //Creates the scatterplot
     function create_scatterplot(selector)
     {
+      function update(selectedGenre)
+      {
       //custom margins
       const l2 = 10; 
       const t2 = 30;
@@ -508,6 +510,8 @@
       var margin = {top: 10, right: 30, bottom: 100, left: 60},
       width = 460 - margin.left - margin.right,
       height = 400 - margin.top - margin.bottom;
+
+      d3.select(selector).selectAll("*").remove();
 
       // append the svg object to the body of the page
       var svg = d3.select(selector)
@@ -559,11 +563,10 @@
       .text("Positive Rating")
       .style("font-size", "20px");
     
-      function update(selectedGenre)
-      {
-        //TODO remove existing dots and line
-        //svg.selectAll("dot").remove();
-        //svg.select(".scatterpath").remove();
+      
+        // TODO remove existing dots and line
+        // svg.selectAll("dot").remove();
+        // svg.select(".scatterpath").remove();
 
         //populate filtered genre data array
         ratingData.forEach((d) => {
@@ -841,7 +844,7 @@
       const margin_top = 100;
       
       const svg = d3.select(selector)
-
+      
       svg.attr("viewBox", `0 0 ${viewport_width} ${viewport_height}`);
 
       const width = viewport_width - 2 * margin_left;
@@ -954,7 +957,8 @@
         })
         .attr("width", x.bandwidth())
         .attr("height", y.bandwidth())
-        .attr('class', (d) => 'bar_chart_bar_' + d.genre.replace(/\W/g, '')  + " bar_chart_bar")
+        .attr('class', (d) => 'bar_chart_bar_' + d.genre.replace(/\W/g, ''))
+        .style("opacity", (d) => (d.pos_reviews < 1) ? "0.3" : "1")
         .style("fill", function (d) {
           return myColor((d.pos_reviews < 1) ? NaN : d.pos_reviews)
         }) //In order for empty entries to be black
@@ -1005,7 +1009,7 @@
         }
         document.getElementById("search_all").removeAttribute("error-tooltip");
         update_page_to_new_genre(option);
-        current_page_type = Page_type.Group;
+        current_page_type = Page_type.Genre;
       } else {
         document.getElementById("search_all").setAttribute("error-tooltip",
           "Please only select items fromt the list");
@@ -1013,6 +1017,7 @@
     }
 
     function cleanup_page() {
+      
       if (current_page_type == Page_type.Landing) {
         
         document.getElementById("stacked_bar_chart").setAttribute("style", "display:none;");
@@ -1031,12 +1036,12 @@
         document.getElementById("genre-group-summary").setAttribute("style", "display:none")
         document.getElementById("bar_chart_users").setAttribute("style", "display:none;");
         document.getElementById("stacked_bar_chart").setAttribute("style", "display:none;");
+        document.getElementById("scatterplot_price").setAttribute("style", "display:none;");
       } else if (current_page_type == Page_type.Group) {
         document.getElementById("stacked_bar_chart").setAttribute("style", "display:none;");
         document.getElementById("genre-group-summary").setAttribute("style", "display:none")
         document.getElementById("genre-group-summary").setAttribute("style", "display:none")
         document.getElementById("bar_chart_users").setAttribute("style", "display:none;");
-        document.getElementById("scatterplot_price").setAttribute("style", "display:none;");
       }
 
     }
