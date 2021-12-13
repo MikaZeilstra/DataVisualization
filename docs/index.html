@@ -180,6 +180,7 @@
     function update_page_to_landing() {
       console.log("Switched to landing")
       current_page_type = Page_type.Landing;
+      document.getElementById("page_header").innerText = ""
       let topN = getGameTopNPlayTime(Object.values(data[2]),(d)=> d.user_minutes.reduce(((a,b) => a + b),0), 10)
       update_bar_chart(topN.map((e) => e.user_minutes.reduce(((a,b) => a + b),0)),topN.map((e) => e.genre), "Top 10 Most popular game by playing times", "Total time played in minutes", "Game title")
       document.getElementById("bar_chart_users").setAttribute("style", "display:flex;");
@@ -192,8 +193,7 @@
     }
 
     function update_page_to_new_group(group) {
-      document.getElementById("genre-group-summary").setAttribute("style", "display:block");
-      document.getElementById("g_header").innerText = group
+      document.getElementById("page_header").innerText = group
       document.getElementById("bar_chart_users").setAttribute("style", "display:block;");
       let topNgroup = getGameTopNPlayTime(Object.values(data[1]),(d)=> d.user_minutes[Object.keys(data[0]).indexOf(group)], 10)
       update_bar_chart(topNgroup.map(d => d.user_minutes[Object.keys(data[0]).indexOf(group)]),topNgroup.map(d => d.name), "Top 10 most popular games for " + group, "Total time played in minutes", "Game title")
@@ -272,11 +272,11 @@
       update_pie_chart_play_own(ar, "Play score")
       d3.select("#page_header").html(game);
       d3.select("#bar_chart_header").html("Number of users per group"); // Maybe add text to actual svg?
-      document.getElementById("game_summary").setAttribute("style", "display:flex")
-      document.getElementById("bar_chart_users").setAttribute("style", "display:block;");
+      document.getElementById("game_info").setAttribute("style", "display:block");
+      document.getElementById("game_image").setAttribute("style", "display:block");      document.getElementById("bar_chart_users").setAttribute("style", "display:block;");
       document.getElementById("pie_chart_rev").setAttribute("style", "display:block;");
       document.getElementById("pie_chart_po").setAttribute("style", "display:block;");
-      document.getElementById("image").setAttribute("style", "display:block;");
+      document.getElementById("game_image").setAttribute("style", "display:block;");
     }
 
     function prepare_dict(data, keys) {
@@ -296,14 +296,15 @@
 
     function update_page_to_new_genre(genre) {
       console.log("Switched to new genre:", genre)
-      document.getElementById("genre-group-summary").setAttribute("style", "display:block");
-      document.getElementById("g_header").innerText = genre
+      document.getElementById("page_header").innerText = genre
       document.getElementById("stacked_bar_chart").setAttribute("style", "display:flex;");
       document.getElementById("bar_chart_users").setAttribute("style", "display:block;");
+      document.getElementById("pie_chart_rev").setAttribute("style", "display:block;");
       let topNgroup = getGameTopNPlayTime(Object.values(data[1]).filter(d => d.tags.includes(genre)),(d)=>  d.user_minutes.reduce((a, b) => a + b, 0), 10);
       update_bar_chart(topNgroup.map(d => d.user_minutes.reduce((a, b) => a + b, 0)),topNgroup.map(d => d.name), "Top 10 most popular games in " + genre, "Total time played in minutes", "Game titles")
       d3.select("#bar_chart_header").html("Playtime for top 10 games of this genre");
-
+      update_pie_chart_reviews(prepare_dict(data[2][genre], ['positive_total', 'negative_total']), "Review score")
+      
       document.getElementById("stacked_bar_chart_N").addEventListener("input", (e) => update_stacked_bar_chart(
         wrangle_stacked_bar_chart(Object.values(data[1]).filter((f) => f.tags.includes(genre)),"name"), Object.keys(data[0]), "Fraction of top N games for " + genre + " per group"));
       update_stacked_bar_chart(wrangle_stacked_bar_chart(Object.values(data[1]).filter((f) => f.tags.includes(genre)),"name"), Object.keys(data[0]), "Fraction of top N games for " + genre + " per group");
@@ -384,7 +385,7 @@
         tooltip 
         .style("transform","translateY(-55%)")  
           .style("left", d.pageX  +"px")
-          .style("top", d.pageY - 15 + "px")
+          .style("top", d.pageY - 30 + "px")
       }
       var mouseleave = function (d) {
         tooltip
@@ -531,11 +532,11 @@
         tooltip
         .style("transform","translateY(-55%)")  
           .style("left", d.pageX  +"px")
-          .style("top", d.pageY - 10 + "px")
+          .style("top", d.pageY - 20 + "px")
       }
       var mouseleave = function (d) {
         tooltip
-          .style("opacity", 1)
+          .style("opacity", 0)
           d3.selectAll("." + d.target.getAttribute("class").split(" ")[0]).style("filter","brightness(1)");
       }
 
@@ -824,7 +825,7 @@
         tooltip
           .style("transform","translateY(-55%)")  
           .style("left", d.pageX  +"px")
-          .style("top", d.pageY - 10 + "px")
+          .style("top", d.pageY - 20 + "px")
           .html("Positive Reviews: " + ((pos_reviews < 1) ? 'N/A' : "<b>" + pos_reviews + "</b>%") +
             " | Games: <b>" + count + "</b>")
       }
@@ -898,7 +899,7 @@
         }
         document.getElementById("search_all").removeAttribute("error-tooltip");
         update_page_to_new_genre(option);
-        current_page_type = Page_type.Group;
+        current_page_type = Page_type.Genre;
       } else {
         document.getElementById("search_all").setAttribute("error-tooltip",
           "Please only select items fromt the list");
@@ -907,27 +908,24 @@
 
     function cleanup_page() {
       if (current_page_type == Page_type.Landing) {
-        
         document.getElementById("stacked_bar_chart").setAttribute("style", "display:none;");
         d3.select("#svg_heat_map").select("*").remove()
         document.getElementById("datadiv").setAttribute("style", "display: none")
       } else if (current_page_type == Page_type.Game) {
         document.getElementById("stacked_bar_chart").setAttribute("style", "display:none;");
-        document.getElementById("game_summary").setAttribute("style", "display:none")
+        document.getElementById("game_info").setAttribute("style", "display:none");
+        document.getElementById("game_image").setAttribute("style", "display:none");
         document.getElementById("bar_chart_users").setAttribute("style", "display:none;");
         document.getElementById("pie_chart_rev").setAttribute("style", "display:none;");
         document.getElementById("pie_chart_po").setAttribute("style", "display:none;");
-
-
       } else if (current_page_type == Page_type.Genre) {
+        console.log("GENRE")
         document.getElementById("stacked_bar_chart").setAttribute("style", "display:none;");
-        document.getElementById("genre-group-summary").setAttribute("style", "display:none")
         document.getElementById("bar_chart_users").setAttribute("style", "display:none;");
         document.getElementById("stacked_bar_chart").setAttribute("style", "display:none;");
+        document.getElementById("pie_chart_rev").setAttribute("style", "display:none;");
       } else if (current_page_type == Page_type.Group) {
         document.getElementById("stacked_bar_chart").setAttribute("style", "display:none;");
-        document.getElementById("genre-group-summary").setAttribute("style", "display:none")
-        document.getElementById("genre-group-summary").setAttribute("style", "display:none")
         document.getElementById("bar_chart_users").setAttribute("style", "display:none;");
       }
 
@@ -961,11 +959,11 @@
     </form>
   </div>
   <div class="main" id="main">
-    <div id="game_summary">
-      <div id="image" style="display: none;"><img id="banner"></div>
+    <div id="g_summary">
+      <div id="game_image" style="display: none;"><img id="banner"></div>
       <div id="game-text">
         <h1 id="page_header"></h1>
-        <div id="game_text">
+        <div id="game_info">
           <p id="description" class="description_text"></p>
           <div id="tags" class="description_text", style= "display:none">Genres:</div>
           <h3 id="price" class="description_text", style= "display:none">Price: </h3>
@@ -977,9 +975,6 @@
       <div id="pie_chart_po">
         <svg id="svg_pie_play_own" class="pie_chart p_own"></svg>
       </div>
-    </div>
-    <div id="genre-group-summary">
-      <h1 id="g_header"></h1>
     </div>
     <div class="charts">
         <div id="datadiv">

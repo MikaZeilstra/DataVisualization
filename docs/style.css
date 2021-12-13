@@ -19,22 +19,18 @@ body {
   overflow: auto;
 }
 
-#game_summary {
-  display: none;
+#g_summary {
+  display: flex;
   width: inherit;
   height: fit-content;
   max-height: 30%;
+  justify-content: center;
 }
 
 #genre-group-summary {
   display: none;
   width: inherit;
   height: 8vh;
-}
-
-#g_header {
-  text-align: center;
-  font-size: 5vh;
 }
 
 .charts {
@@ -168,7 +164,7 @@ body {
   font-size: 1.8vh
 }
 
-#image {
+#game_image {
   padding: 2vw;
   width: 25%;
   vertical-align: top;
@@ -211,10 +207,12 @@ body {
 }
 
 #pie_chart_rev {
+  display: none;
   width: 20vw;
 }
 
 #pie_chart_po {
+  display: none;
   width: 20vw;
 }
 
