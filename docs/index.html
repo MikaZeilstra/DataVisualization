@@ -205,7 +205,7 @@
       game_id = data[1][game]['appid']
       link = "https://cdn.akamai.steamstatic.com/steam/apps/" + game_id + "/header.jpg"
       d3.select("#banner").attr('src', link)
-      link_desc = "../GamesDescriptions.json"
+      link_desc = "./GamesDescriptions.json"
       var desc = fetch(link_desc, {
           mode: 'cors'
         })
