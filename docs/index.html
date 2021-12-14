@@ -5,7 +5,7 @@
   <link rel="stylesheet" href="polyfill.css">
   <link rel="stylesheet" href="style.css">
   <script src="https://d3js.org/d3.v7.js"></script>
-  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
   <script>
     //This function adds poly fill to the searchbar adapted from https://codepen.io/jpdevries/pen/MoROzK
     function add_polyfill() {
@@ -117,10 +117,10 @@
     };
     // Load data into the navigation bar
     const fetches = [
-      fetch('../UserOwnedGames.json').then(response => response.json()),
-      fetch('../GamesGenre.json').then(response => response.json()),
-      fetch('../GenreData.json').then(response => response.json()),
-      d3.csv('../RatingData.csv')
+      fetch('./UserOwnedGames.json').then(response => response.json()),
+      fetch('./GamesGenre.json').then(response => response.json()),
+      fetch('./GenreData.json').then(response => response.json()),
+      d3.csv('./RatingData.csv')
     ];
 
     //Enum like structure to keep track of Page content
@@ -180,8 +180,9 @@
     }
 
     function update_page_to_landing() {
-      console.log("Switched to landing")
       current_page_type = Page_type.Landing;
+      document.getElementById("g_summary").setAttribute("style", "display:none")
+      document.getElementById("page_header").innerText = ""
       let topN = getGameTopNPlayTime(Object.values(data[2]),(d)=> d.user_minutes.reduce(((a,b) => a + b),0), 10)
       update_bar_chart(topN.map((e) => e.user_minutes.reduce(((a,b) => a + b),0)),topN.map((e) => e.genre), "Top 10 Most popular game by playing times", "Total time played in minutes", "Game title")
       document.getElementById("bar_chart_users").setAttribute("style", "display:flex;");
@@ -194,31 +195,19 @@
     }
 
     function update_page_to_new_group(group) {
-      document.getElementById("genre-group-summary").setAttribute("style", "display:block");
-      document.getElementById("g_header").innerText = group
+      document.getElementById("page_header").innerText = group
       document.getElementById("bar_chart_users").setAttribute("style", "display:block;");
       let topNgroup = getGameTopNPlayTime(Object.values(data[1]),(d)=> d.user_minutes[Object.keys(data[0]).indexOf(group)], 10)
       update_bar_chart(topNgroup.map(d => d.user_minutes[Object.keys(data[0]).indexOf(group)]),topNgroup.map(d => d.name), "Top 10 most popular games for " + group, "Total time played in minutes", "Game title")
       d3.select("#bar_chart_header").html("Playtime for top 10 games of this group");
     }
 
-    // function update_page_to_new_group(group) {
-    //   d3.select("#summary").attr("style", 'display:flex')
-    //   d3.select("#page_header").html(group);
-    //   d3.select("#banner").attr('src', '')
-    //   d3.select("#game_text").attr('style', 'display:none')
-    //   console.log("switched to new group")
-    //   console.log(group)
-    // }
-
     function update_page_to_new_game(game) {
-      console.log("Switched to new game:", game)
-
       // Reset main
       game_id = data[1][game]['appid']
       link = "https://cdn.akamai.steamstatic.com/steam/apps/" + game_id + "/header.jpg"
       d3.select("#banner").attr('src', link)
-      link_desc = "../GamesDescriptions.json"
+      link_desc = "./GamesDescriptions.json"
       var desc = fetch(link_desc, {
           mode: 'cors'
         })
@@ -274,11 +263,11 @@
       update_pie_chart_play_own(ar, "Play score")
       d3.select("#page_header").html(game);
       d3.select("#bar_chart_header").html("Number of users per group"); // Maybe add text to actual svg?
-      document.getElementById("game_summary").setAttribute("style", "display:flex")
-      document.getElementById("bar_chart_users").setAttribute("style", "display:block;");
+      document.getElementById("game_info").setAttribute("style", "display:block");
+      document.getElementById("game_image").setAttribute("style", "display:block");      document.getElementById("bar_chart_users").setAttribute("style", "display:block;");
       document.getElementById("pie_chart_rev").setAttribute("style", "display:block;");
       document.getElementById("pie_chart_po").setAttribute("style", "display:block;");
-      document.getElementById("image").setAttribute("style", "display:block;");
+      document.getElementById("game_image").setAttribute("style", "display:block;");
     }
 
     function prepare_dict(data, keys) {
@@ -297,33 +286,22 @@
     }
 
     function update_page_to_new_genre(genre) {
-      console.log("Switched to new genre:", genre)
-      document.getElementById("genre-group-summary").setAttribute("style", "display:block");
-      document.getElementById("g_header").innerText = genre
+      document.getElementById("page_header").innerText = genre
       document.getElementById("stacked_bar_chart").setAttribute("style", "display:flex;");
       document.getElementById("bar_chart_users").setAttribute("style", "display:block;");
+      document.getElementById("pie_chart_rev").setAttribute("style", "display:block;");
       document.getElementById("scatterplot_price").setAttribute("style", "display:block;");
-      
       let topNgroup = getGameTopNPlayTime(Object.values(data[1]).filter(d => d.tags.includes(genre)),(d)=>  d.user_minutes.reduce((a, b) => a + b, 0), 10);
       update_bar_chart(topNgroup.map(d => d.user_minutes.reduce((a, b) => a + b, 0)),topNgroup.map(d => d.name), "Top 10 most popular games in " + genre, "Total time played in minutes", "Game titles")
       d3.select("#bar_chart_header").html("Playtime for top 10 games of this genre");
-
+      update_pie_chart_reviews(prepare_dict(data[2][genre], ['positive_total', 'negative_total']), "Review score")
+      
       document.getElementById("stacked_bar_chart_N").addEventListener("input", (e) => update_stacked_bar_chart(
         wrangle_stacked_bar_chart(Object.values(data[1]).filter((f) => f.tags.includes(genre)),"name"), Object.keys(data[0]), "Fraction of top N games for " + genre + " per group"));
       update_stacked_bar_chart(wrangle_stacked_bar_chart(Object.values(data[1]).filter((f) => f.tags.includes(genre)),"name"), Object.keys(data[0]), "Fraction of top N games for " + genre + " per group");
       update_scatterplot(genre)
 
     }
-
-    // function update_page_to_new_genre(genre) {
-    //   d3.select("#summary").attr("style", 'display:flex')
-    //   d3.select("#page_header").html(genre);
-    //   d3.select("#banner").attr('src', '')
-    //   d3.select("#game_text").attr('style', 'display:none')
-    //   console.log("switched to new genre")
-    //   console.log(genre)
-
-    // }
 
     //This function creates setsup the bar chart by providing a update function
     function wrangle_stacked_bar_chart(bar_data,sub_label_field) {
@@ -384,11 +362,12 @@
           .style("opacity", 1)
         d3.selectAll("." + d.target.getAttribute("class").split(" ")[0]).style("filter","brightness(0.5)");
       }
+
       var mousemove = function (d) {
         tooltip 
         .style("transform","translateY(-55%)")  
-          .style("left", d.pageX  +"px")
-          .style("top", d.pageY - 15 + "px")
+          .style("left", d.pageX + document.getElementsByTagName('body')[0].clientWidth * 0.01 + "px")
+          .style("top", d.pageY + document.getElementsByTagName('body')[0].clientWidth * 0.04 + "px")
       }
       var mouseleave = function (d) {
         tooltip
@@ -447,7 +426,6 @@
             .text(title)
 
 
-        //console.log(new_data)
         xscale.domain(labels).padding(0.1);
         yscale.domain([100, 0]);
 
@@ -639,17 +617,16 @@
       var mousemove = function (d) {
         tooltip
         .style("transform","translateY(-55%)")  
-          .style("left", d.pageX  +"px")
-          .style("top", d.pageY - 10 + "px")
+        .style("left", d.pageX + document.getElementsByTagName('body')[0].clientWidth * 0.01 + "px")
+        .style("top", d.pageY + document.getElementsByTagName('body')[0].clientWidth * 0.03 + "px")
       }
       var mouseleave = function (d) {
         tooltip
-          .style("opacity", 1)
+          .style("opacity", 0)
           d3.selectAll("." + d.target.getAttribute("class").split(" ")[0]).style("filter","brightness(1)");
       }
 
       var mouseClick = function (d) {
-        console.log("OKE")
         handle_submit(d.target.getAttribute("data-label"))
         d3.selectAll("." + d.target.getAttribute("class").split(" ")[0]).style("filter","brightness(1)");
       }
@@ -710,7 +687,6 @@
             .style("font-family", "arial")
             .text(title)
         
-        console.log(ylabel_loc, xlabel_loc)
         g.select("#bar_chart_x_label").text(xaxis_t).attr("y", height + xlabel_loc)
         g.select("#bar_chart_y_label").text(yaxis_t).attr("y", 0 - ylabel_loc)
                                                    
@@ -932,8 +908,8 @@
         var count = data.count
         tooltip
           .style("transform","translateY(-55%)")  
-          .style("left", d.pageX  +"px")
-          .style("top", d.pageY - 10 + "px")
+          .style("left", d.pageX + document.getElementsByTagName('body')[0].clientWidth * 0.01 + "px")
+          .style("top", d.pageY - document.getElementsByTagName('body')[0].clientWidth * 0.02 + "px")
           .html("Positive Reviews: " + ((pos_reviews < 1) ? 'N/A' : "<b>" + pos_reviews + "</b>%") +
             " | Games: <b>" + count + "</b>")
       }
@@ -989,7 +965,15 @@
 
 
     function handle_submit(option) {
-      if (Object.keys(data[0]).includes(option)) {
+
+      if (Object.keys(data[2]).includes(option)) {
+        if (current_page_type != Page_type.Genre) {
+          cleanup_page();
+        }
+        document.getElementById("search_all").removeAttribute("error-tooltip");
+        update_page_to_new_genre(option);
+        current_page_type = Page_type.Genre;
+      } else if (Object.keys(data[0]).includes(option)) {
         if (current_page_type != Page_type.Group) {
           cleanup_page();
         }
@@ -1019,28 +1003,25 @@
     function cleanup_page() {
       
       if (current_page_type == Page_type.Landing) {
-        
         document.getElementById("stacked_bar_chart").setAttribute("style", "display:none;");
         d3.select("#svg_heat_map").select("*").remove()
         document.getElementById("datadiv").setAttribute("style", "display: none")
+        document.getElementById("g_summary").setAttribute("style", "display:flex")
       } else if (current_page_type == Page_type.Game) {
         document.getElementById("stacked_bar_chart").setAttribute("style", "display:none;");
-        document.getElementById("game_summary").setAttribute("style", "display:none")
+        document.getElementById("game_info").setAttribute("style", "display:none");
+        document.getElementById("game_image").setAttribute("style", "display:none");
         document.getElementById("bar_chart_users").setAttribute("style", "display:none;");
         document.getElementById("pie_chart_rev").setAttribute("style", "display:none;");
         document.getElementById("pie_chart_po").setAttribute("style", "display:none;");
-
-
       } else if (current_page_type == Page_type.Genre) {
         document.getElementById("stacked_bar_chart").setAttribute("style", "display:none;");
-        document.getElementById("genre-group-summary").setAttribute("style", "display:none")
         document.getElementById("bar_chart_users").setAttribute("style", "display:none;");
         document.getElementById("stacked_bar_chart").setAttribute("style", "display:none;");
         document.getElementById("scatterplot_price").setAttribute("style", "display:none;");
+        document.getElementById("pie_chart_rev").setAttribute("style", "display:none;");
       } else if (current_page_type == Page_type.Group) {
         document.getElementById("stacked_bar_chart").setAttribute("style", "display:none;");
-        document.getElementById("genre-group-summary").setAttribute("style", "display:none")
-        document.getElementById("genre-group-summary").setAttribute("style", "display:none")
         document.getElementById("bar_chart_users").setAttribute("style", "display:none;");
       }
 
@@ -1050,7 +1031,7 @@
 
 <body style="background-color:#c7d5e0">
   <div class="wrap">
-    <div id="home_box" style="margin-left:9%;margin-right: 9%; width: 7%; height:100%;align-items: center;">
+    <div id="home_box" style="margin-left:9%;margin-right: 9%; width: 7%;align-items: center;display:flex;">
       <button id="homeButton" onclick="cleanup_page();update_page_to_landing()">
       <i class="fa fa-home" style="color: white; font-size: 6vh;"></i>
     </button>
@@ -1074,13 +1055,13 @@
     </form>
   </div>
   <div class="main" id="main">
-    <div id="game_summary">
-      <div id="image" style="display: none;"><img id="banner"></div>
+    <div id="g_summary">
+      <div id="game_image" style="display: none;"><img id="banner"></div>
       <div id="game-text">
         <h1 id="page_header"></h1>
-        <div id="game_text">
+        <div id="game_info">
           <p id="description" class="description_text"></p>
-          <div id="tags" class="description_text", style= "display:none">Genres:</div>
+          <div id="tags" class="description_text", style= "display:none">Genres:   </div>
           <h3 id="price" class="description_text", style= "display:none">Price: </h3>
         </div>
       </div>
@@ -1091,20 +1072,17 @@
         <svg id="svg_pie_play_own" class="pie_chart p_own"></svg>
       </div>
     </div>
-    <div id="genre-group-summary">
-      <h1 id="g_header"></h1>
-    </div>
     <div class="charts">
-        <div id="datadiv">
-          <svg id="svg_heat_map"></svg>
-        </div>
         <div id="stacked_bar_chart">
             <input type="number" min="1" max="10" value="5" id="stacked_bar_chart_N">  
           <svg id="svg_stacked_bar_chart"></svg>
         </div>
-        <div id="bar_chart_users" style="display: none;">
+        <div id="bar_chart_users" style="display: none;" >
           <!-- <h3 id="bar_chart_header">Number of user per group</h3> -->
-          <svg id="svg_bar_chart_users" class="bar_chart bar_playing_time"></svg>
+          <svg id="svg_bar_chart_users" class="bar_chart bar_playing_time" class="svg_graph"></svg>
+        </div>
+        <div id="datadiv">
+          <svg id="svg_heat_map" class="svg_graph"></svg>
         </div>
         <div id="scatterplot_price" style="display: none;">
           <svg id="scatterplot_price"></svg>
