@@ -10,6 +10,7 @@ for game in Games:
 	for tag in Games[game]["tags"]:
 		if tag not in GenreData:
 			GenreData[tag] = {}
+			GenreData[tag]["genre"] = tag
 			GenreData[tag]["user_count"] = [0] * 12
 			for ind,group in enumerate(Games[game]["user_count"]):
 				GenreData[tag]["user_count"][ind] = group
