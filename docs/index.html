@@ -363,8 +363,8 @@
       var mousemove = function (d) {
         tooltip 
         .style("transform","translateY(-55%)")  
-          .style("left", d.pageX + document.getElementsByTagName('body')[0].clientWidth * 0.01 + "px")
-          .style("top", d.pageY + document.getElementsByTagName('body')[0].clientWidth * 0.04 + "px")
+        .style("left", d.pageX + document.getElementsByTagName('body')[0].clientWidth * 0.003 + "px")
+        .style("top", d.pageY - document.getElementsByTagName('body')[0].clientHeight * 0.03 + "px")
       }
       var mouseleave = function (d) {
         tooltip
@@ -509,8 +509,8 @@
       var mousemove = function (d) {
         tooltip
         .style("transform","translateY(-55%)")  
-        .style("left", d.pageX + document.getElementsByTagName('body')[0].clientWidth * 0.01 + "px")
-        .style("top", d.pageY + document.getElementsByTagName('body')[0].clientWidth * 0.03 + "px")
+        .style("left", d.pageX + document.getElementsByTagName('body')[0].clientWidth * 0.003 + "px")
+          .style("top", d.pageY - document.getElementsByTagName('body')[0].clientHeight * 0.015 + "px")
       }
       var mouseleave = function (d) {
         tooltip
@@ -800,8 +800,8 @@
         var count = data.count
         tooltip
           .style("transform","translateY(-55%)")  
-          .style("left", d.pageX + document.getElementsByTagName('body')[0].clientWidth * 0.01 + "px")
-          .style("top", d.pageY - document.getElementsByTagName('body')[0].clientWidth * 0.02 + "px")
+          .style("left", d.pageX + document.getElementsByTagName('body')[0].clientWidth * 0.003 + "px")
+          .style("top", d.pageY - document.getElementsByTagName('body')[0].clientHeight * 0.015 + "px")
           .html("Positive Reviews: " + ((pos_reviews < 1) ? 'N/A' : "<b>" + pos_reviews + "</b>%") +
             " | Games: <b>" + count + "</b>")
       }
