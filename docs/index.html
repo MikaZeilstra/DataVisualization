@@ -178,8 +178,8 @@
     }
 
     function update_page_to_landing() {
-      console.log("Switched to landing")
       current_page_type = Page_type.Landing;
+      document.getElementById("g_summary").setAttribute("style", "display:none")
       document.getElementById("page_header").innerText = ""
       let topN = getGameTopNPlayTime(Object.values(data[2]),(d)=> d.user_minutes.reduce(((a,b) => a + b),0), 10)
       update_bar_chart(topN.map((e) => e.user_minutes.reduce(((a,b) => a + b),0)),topN.map((e) => e.genre), "Top 10 Most popular game by playing times", "Total time played in minutes", "Game title")
@@ -200,18 +200,7 @@
       d3.select("#bar_chart_header").html("Playtime for top 10 games of this group");
     }
 
-    // function update_page_to_new_group(group) {
-    //   d3.select("#summary").attr("style", 'display:flex')
-    //   d3.select("#page_header").html(group);
-    //   d3.select("#banner").attr('src', '')
-    //   d3.select("#game_text").attr('style', 'display:none')
-    //   console.log("switched to new group")
-    //   console.log(group)
-    // }
-
     function update_page_to_new_game(game) {
-      console.log("Switched to new game:", game)
-
       // Reset main
       game_id = data[1][game]['appid']
       link = "https://cdn.akamai.steamstatic.com/steam/apps/" + game_id + "/header.jpg"
@@ -295,7 +284,6 @@
     }
 
     function update_page_to_new_genre(genre) {
-      console.log("Switched to new genre:", genre)
       document.getElementById("page_header").innerText = genre
       document.getElementById("stacked_bar_chart").setAttribute("style", "display:flex;");
       document.getElementById("bar_chart_users").setAttribute("style", "display:block;");
@@ -311,16 +299,6 @@
 
 
     }
-
-    // function update_page_to_new_genre(genre) {
-    //   d3.select("#summary").attr("style", 'display:flex')
-    //   d3.select("#page_header").html(genre);
-    //   d3.select("#banner").attr('src', '')
-    //   d3.select("#game_text").attr('style', 'display:none')
-    //   console.log("switched to new genre")
-    //   console.log(genre)
-
-    // }
 
     //This function creates setsup the bar chart by providing a update function
     function wrangle_stacked_bar_chart(bar_data,sub_label_field) {
@@ -381,11 +359,12 @@
           .style("opacity", 1)
         d3.selectAll("." + d.target.getAttribute("class").split(" ")[0]).style("filter","brightness(0.5)");
       }
+
       var mousemove = function (d) {
         tooltip 
         .style("transform","translateY(-55%)")  
-          .style("left", d.pageX  +"px")
-          .style("top", d.pageY - 30 + "px")
+          .style("left", d.pageX + document.getElementsByTagName('body')[0].clientWidth * 0.01 + "px")
+          .style("top", d.pageY + document.getElementsByTagName('body')[0].clientWidth * 0.04 + "px")
       }
       var mouseleave = function (d) {
         tooltip
@@ -444,7 +423,6 @@
             .text(title)
 
 
-        //console.log(new_data)
         xscale.domain(labels).padding(0.1);
         yscale.domain([100, 0]);
 
@@ -531,8 +509,8 @@
       var mousemove = function (d) {
         tooltip
         .style("transform","translateY(-55%)")  
-          .style("left", d.pageX  +"px")
-          .style("top", d.pageY - 20 + "px")
+        .style("left", d.pageX + document.getElementsByTagName('body')[0].clientWidth * 0.01 + "px")
+        .style("top", d.pageY + document.getElementsByTagName('body')[0].clientWidth * 0.03 + "px")
       }
       var mouseleave = function (d) {
         tooltip
@@ -541,7 +519,6 @@
       }
 
       var mouseClick = function (d) {
-        console.log("OKE")
         handle_submit(d.target.getAttribute("data-label"))
         d3.selectAll("." + d.target.getAttribute("class").split(" ")[0]).style("filter","brightness(1)");
       }
@@ -602,7 +579,6 @@
             .style("font-family", "arial")
             .text(title)
         
-        console.log(ylabel_loc, xlabel_loc)
         g.select("#bar_chart_x_label").text(xaxis_t).attr("y", height + xlabel_loc)
         g.select("#bar_chart_y_label").text(yaxis_t).attr("y", 0 - ylabel_loc)
                                                    
@@ -824,8 +800,8 @@
         var count = data.count
         tooltip
           .style("transform","translateY(-55%)")  
-          .style("left", d.pageX  +"px")
-          .style("top", d.pageY - 20 + "px")
+          .style("left", d.pageX + document.getElementsByTagName('body')[0].clientWidth * 0.01 + "px")
+          .style("top", d.pageY - document.getElementsByTagName('body')[0].clientWidth * 0.02 + "px")
           .html("Positive Reviews: " + ((pos_reviews < 1) ? 'N/A' : "<b>" + pos_reviews + "</b>%") +
             " | Games: <b>" + count + "</b>")
       }
@@ -879,7 +855,15 @@
 
 
     function handle_submit(option) {
-      if (Object.keys(data[0]).includes(option)) {
+
+      if (Object.keys(data[2]).includes(option)) {
+        if (current_page_type != Page_type.Genre) {
+          cleanup_page();
+        }
+        document.getElementById("search_all").removeAttribute("error-tooltip");
+        update_page_to_new_genre(option);
+        current_page_type = Page_type.Genre;
+      } else if (Object.keys(data[0]).includes(option)) {
         if (current_page_type != Page_type.Group) {
           cleanup_page();
         }
@@ -893,14 +877,7 @@
         document.getElementById("search_all").removeAttribute("error-tooltip");
         update_page_to_new_game(option);
         current_page_type = Page_type.Game;
-      } else if (Object.keys(data[2]).includes(option)) {
-        if (current_page_type != Page_type.Genre) {
-          cleanup_page();
-        }
-        document.getElementById("search_all").removeAttribute("error-tooltip");
-        update_page_to_new_genre(option);
-        current_page_type = Page_type.Genre;
-      } else {
+      }  else {
         document.getElementById("search_all").setAttribute("error-tooltip",
           "Please only select items fromt the list");
       }
@@ -911,6 +888,7 @@
         document.getElementById("stacked_bar_chart").setAttribute("style", "display:none;");
         d3.select("#svg_heat_map").select("*").remove()
         document.getElementById("datadiv").setAttribute("style", "display: none")
+        document.getElementById("g_summary").setAttribute("style", "display:flex")
       } else if (current_page_type == Page_type.Game) {
         document.getElementById("stacked_bar_chart").setAttribute("style", "display:none;");
         document.getElementById("game_info").setAttribute("style", "display:none");
@@ -919,7 +897,6 @@
         document.getElementById("pie_chart_rev").setAttribute("style", "display:none;");
         document.getElementById("pie_chart_po").setAttribute("style", "display:none;");
       } else if (current_page_type == Page_type.Genre) {
-        console.log("GENRE")
         document.getElementById("stacked_bar_chart").setAttribute("style", "display:none;");
         document.getElementById("bar_chart_users").setAttribute("style", "display:none;");
         document.getElementById("stacked_bar_chart").setAttribute("style", "display:none;");
@@ -935,7 +912,7 @@
 
 <body style="background-color:#c7d5e0">
   <div class="wrap">
-    <div id="home_box" style="margin-left:9%;margin-right: 9%; width: 7%; height:100%;align-items: center;">
+    <div id="home_box" style="margin-left:9%;margin-right: 9%; width: 7%;align-items: center;display:flex;">
       <button id="homeButton" onclick="cleanup_page();update_page_to_landing()">
       <i class="fa fa-home" style="color: white; font-size: 6vh;"></i>
     </button>
@@ -965,7 +942,7 @@
         <h1 id="page_header"></h1>
         <div id="game_info">
           <p id="description" class="description_text"></p>
-          <div id="tags" class="description_text", style= "display:none">Genres:</div>
+          <div id="tags" class="description_text", style= "display:none">Genres:   </div>
           <h3 id="price" class="description_text", style= "display:none">Price: </h3>
         </div>
       </div>
@@ -977,16 +954,16 @@
       </div>
     </div>
     <div class="charts">
-        <div id="datadiv">
-          <svg id="svg_heat_map"></svg>
-        </div>
         <div id="stacked_bar_chart">
             <input type="number" min="1" max="10" value="5" id="stacked_bar_chart_N">  
           <svg id="svg_stacked_bar_chart"></svg>
         </div>
-        <div id="bar_chart_users" style="display: none;">
+        <div id="bar_chart_users" style="display: none;" >
           <!-- <h3 id="bar_chart_header">Number of user per group</h3> -->
-          <svg id="svg_bar_chart_users" class="bar_chart bar_playing_time"></svg>
+          <svg id="svg_bar_chart_users" class="bar_chart bar_playing_time" class="svg_graph"></svg>
+        </div>
+        <div id="datadiv">
+          <svg id="svg_heat_map" class="svg_graph"></svg>
         </div>
     </div>
   </div>

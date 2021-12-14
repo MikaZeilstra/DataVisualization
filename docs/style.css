@@ -89,6 +89,10 @@ body {
 .searchTerm:focus {
   color: #66c0f4;
 }
+.svg_graph {
+  width: 100%;
+  height: 100%;
+}
 
 .searchButton {
   width: 3vw;
@@ -100,6 +104,7 @@ body {
   cursor: pointer;
   font-size: 20px;
   position: relative;
+  padding: 0vw;
 }
 
 #homeButton {
@@ -110,6 +115,9 @@ body {
   align-items: top;
   cursor: pointer;
   position: relative;
+  display: flex;
+  padding: 0px;
+  border-width: 0px;
 }
 
 #svg_button {
@@ -193,14 +201,14 @@ body {
 }
 
 .app_tag {
-  padding: 0 1vw;
-  color: #c7d5e0;
-  background-color: #2a475e;
-  margin-right: 2px;
-  border-radius: 2px;
+  padding: 0px 1vw;
+  color: rgb(199, 213, 224);
+  background-color: rgb(42, 71, 94);
+  margin-left: 0.5vw;
+  border-radius: 0.5vh;
   cursor: pointer;
-  margin-bottom: 3px;
-  max-width: 200px;
+  margin-bottom: 0.5vh;
+  max-width: 30vw;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
