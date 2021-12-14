@@ -117,10 +117,10 @@
     };
     // Load data into the navigation bar
     const fetches = [
-      fetch('../UserOwnedGames.json').then(response => response.json()),
-      fetch('../GamesGenre.json').then(response => response.json()),
-      fetch('../GenreData.json').then(response => response.json()),
-      d3.csv('../RatingData.csv')
+      fetch('./UserOwnedGames.json').then(response => response.json()),
+      fetch('./GamesGenre.json').then(response => response.json()),
+      fetch('./GenreData.json').then(response => response.json()),
+      d3.csv('./RatingData.csv')
     ];
 
     //Enum like structure to keep track of Page content
