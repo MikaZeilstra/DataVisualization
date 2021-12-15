@@ -311,7 +311,7 @@
       }]);
 
       for(let i = 0; i < group_top_data.length; i++){
-        for (let j = 0; j < N; j++) {
+        for (let j = 0; j < group_top_data[i].length; j++) {
           group_data[i].push({
             val: group_top_data[i][j].user_minutes[i],
             cum_sum: group_data[i][group_data[i].length - 1].cum_sum + group_top_data[i][j].user_minutes[i],
