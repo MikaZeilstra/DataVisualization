@@ -203,7 +203,7 @@
       let topNgroup = getGameTopNPlayTime(Object.values(data[1]), (d) => d.user_minutes[Object.keys(data[0]).indexOf(
         group)], 10)
       update_bar_chart(topNgroup.map(d => d.user_minutes[Object.keys(data[0]).indexOf(group)]), topNgroup.map(d => d
-        .name), "Top 10 most popular games for " + group, "Total time played in minutes", "Game title")
+        .name), "Top 10 most popular games in " + group, "Total time played in minutes", "Game title")
       d3.select("#bar_chart_header").html("Playtime for top 10 games of this group");
     }
 
@@ -225,7 +225,6 @@
       var genres = data[1][game]["tags"]
       d3.select("#tags").selectAll("*").remove()
       var nr_genres = 0
-      // d3.select("#tags").append("p")
       genres.forEach((genre) => {
         if (genre != "") {
           nr_genres += 1;
@@ -253,7 +252,7 @@
       d3.select("#bar_chart").attr('style', 'display:block')
 
       update_bar_chart(data[1][game]["user_count"], Object.keys(data[0]), "Number of players in each group", "Users",
-        "Groups", 40, 40);
+        "Groups", 40, 70);
       update_pie_chart_reviews(prepare_dict(data[1][game], ['positive_reviews', 'negative_reviews']), "Review score")
       var user_cp = prepare_dict(data[1][game], ['user_count', 'user_played'])
       var ar = []
@@ -268,7 +267,7 @@
 
       update_pie_chart_play_own(ar, "Play score")
       d3.select("#page_header").html(game);
-      d3.select("#bar_chart_header").html("Number of users per group"); // Maybe add text to actual svg?
+      d3.select("#bar_chart_header").html("Number of users per group"); 
       document.getElementById("game_info").setAttribute("style", "display:block");
       document.getElementById("game_image").setAttribute("style", "display:block");
       document.getElementById("bar_chart_users").setAttribute("style", "display:block;");
@@ -347,7 +346,8 @@
       const viewport_height = 1000;
       //Set the viewport and margins
       const margin_left = 70;
-      const margin_top = 100;
+      const margin_top = 80;
+      const margin_bottom = 140;
 
 
       const svg = d3.select(selector);
@@ -395,7 +395,7 @@
       svg.attr("viewBox", `0 0 ${viewport_width} ${viewport_height}`);
 
       const width = viewport_width - 2 * margin_left;
-      const height = viewport_height - 2 * margin_top;
+      const height = viewport_height - margin_top - margin_bottom;
 
       //Make the group element which contains the bars
       const g = svg.append('g')
@@ -408,7 +408,7 @@
       const yscale = d3.scaleLinear().range([0, height]);
 
       const xaxis = d3.axisBottom().scale(xscale);
-      const g_xaxis = g.append('g').attr('class', 'x axis').style("font-size", "15px");
+      const g_xaxis = g.append('g').attr('class', 'x axis').style("font-size", "20px");
       const yaxis = d3.axisLeft().scale(yscale).tickFormat(function (d) {
         return d + "%"
       });
@@ -418,7 +418,7 @@
       g.append("text")
         .attr("transform",
           "translate(" + (width / 2) + " ," +
-          (height + margin_top / 1.5) + ")")
+          (height + margin_top * 1.4) + ")")
         .style("text-anchor", "middle")
         .text("Groups")
         .style("font-size", "25px");
@@ -443,6 +443,7 @@
 
 
         g_xaxis.transition().attr("transform", "translate(0," + height + ")").call(xaxis);
+        g_xaxis.selectAll("text").attr("transform", "rotate(25)").style("text-anchor", "start");;
         g_yaxis.transition().call(yaxis);
 
         posible_subgroups = [].concat.apply([], new_data).map((e) => e.game).filter((v, i, s) => s.indexOf(v) === i)
@@ -774,7 +775,6 @@
 
       //Make the group element which contains the bars
       const g = svg.append('g')
-        // .attr('transform', `translate(${margin_left} , ${margin_top})`)
         .attr('transform', 'translate(' + width / 2 + ',' + (height / 2 + margin_top) + ')')
 
       var color = d3.scaleOrdinal(d3.schemeSet3);
@@ -795,7 +795,7 @@
 
 
       function update(new_data, title) {
-
+        // Remove current title and add new one
         g.select(".title").remove()
         g.append("text")
           .attr("class", "title")
@@ -804,18 +804,21 @@
           .style("font-size", "30px")
           .style("font-family", "arial")
           .text(title)
-
+        
+        // Calculate position of each data point on the pie
         const pied = pie(new_data)
 
         color.domain(new_data.map((d) => d.name))
 
+        // Get the current pie chart data
         const old = g.selectAll('path').data();
 
         function tweenArc(d, i) {
           const interpolate = d3.interpolateObject(old[i], d);
           return (t) => arc(interpolate(t));
         }
-
+        
+        // Add the pie-pieces
         const path = g.selectAll('path').data(pied, (d) => d.data.name).join(
           (enter) => {
             const path_enter = enter.append('path')
@@ -827,10 +830,13 @@
           .attrTween('d', tweenArc)
           .remove()
         );
-
+        
+        // Specify transition
         path.transition()
           .attrTween('d', tweenArc)
           .style('fill', (d) => color(d.data.name))
+        
+        // Add hover element
         path.select('title').text((d) => d.data.name + ':' + d.data.value)
 
       }
