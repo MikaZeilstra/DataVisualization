@@ -235,6 +235,12 @@ body {
   display: flex;
   float: left;
 }
+#scatterplot_price {
+  width: 40%;
+  height: 100%;
+  display: flex;
+  float: left;
+}
 
 #stacked-tooltip {
   position: absolute;
