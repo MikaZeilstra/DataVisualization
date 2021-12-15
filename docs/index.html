@@ -149,7 +149,7 @@
       update_stacked_bar_chart = create_stacked_bar_chart("#svg_stacked_bar_chart");
       update_pie_chart_reviews = create_pie_chart("#svg_pie_review")
       update_pie_chart_play_own = create_pie_chart("#svg_pie_play_own")
-      update_scatterplot = create_scatterplot("#scatterplot_price")
+      update_scatterplot = create_scatterplot("#svg_scatterplot_price")
 
       load_search_bar();
       update_page_to_landing();
@@ -290,7 +290,7 @@
       document.getElementById("stacked_bar_chart").setAttribute("style", "display:flex;");
       document.getElementById("bar_chart_users").setAttribute("style", "display:block;");
       document.getElementById("pie_chart_rev").setAttribute("style", "display:block;");
-      document.getElementById("scatterplot_price").setAttribute("style", "display:block;");
+      document.getElementById("scatterplot_price").setAttribute("style", "display:flex;");
       let topNgroup = getGameTopNPlayTime(Object.values(data[1]).filter(d => d.tags.includes(genre)),(d)=>  d.user_minutes.reduce((a, b) => a + b, 0), 10);
       update_bar_chart(topNgroup.map(d => d.user_minutes.reduce((a, b) => a + b, 0)),topNgroup.map(d => d.name), "Top 10 most popular games in " + genre, "Total time played in minutes", "Game titles")
       d3.select("#bar_chart_header").html("Playtime for top 10 games of this genre");
@@ -366,8 +366,8 @@
       var mousemove = function (d) {
         tooltip 
         .style("transform","translateY(-55%)")  
-          .style("left", d.pageX + document.getElementsByTagName('body')[0].clientWidth * 0.01 + "px")
-          .style("top", d.pageY + document.getElementsByTagName('body')[0].clientWidth * 0.04 + "px")
+          .style("left", d.pageX + document.getElementsByTagName('body')[0].clientWidth * 0.003 + "px")
+          .style("top", d.pageY - document.getElementsByTagName('body')[0].clientHeight * 0.03 + "px")
       }
       var mouseleave = function (d) {
         tooltip
@@ -481,27 +481,28 @@
     {
       function update(selectedGenre)
       {
-      //custom margins
-      const l2 = 10; 
-      const t2 = 30;
+        const viewport_width = 500;
+        const viewport_height = 400;
 
-      var margin = {top: 10, right: 30, bottom: 100, left: 60},
-      width = 460 - margin.left - margin.right,
-      height = 400 - margin.top - margin.bottom;
+        const margin = {
+          top : 40,
+          left : 100,
+          bottom : 80,
+          right : 70
+        }
 
-      d3.select(selector).selectAll("*").remove();
+        var svg = d3.select(selector)
 
-      // append the svg object to the body of the page
-      var svg = d3.select(selector)
-      .append("svg")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
-      .append("g")
-        .attr("transform",
-              "translate(" + margin.left + "," + margin.top + ")");
+        d3.select(selector).selectAll("*").remove();
 
-      const g = svg.append('g')
-      .attr('transform', `translate(${l2} , ${t2})`);
+        svg.attr("viewBox", `0 0 ${viewport_width} ${viewport_height}`);
+
+        const width = viewport_width - margin.left - margin.right
+        const height = viewport_height - margin.top - margin.bottom
+        
+        // append the svg object to the body of the page
+        const g = svg.append('g')
+        .attr('transform', `translate(${margin.left} , ${margin.top})`);
 
       //Read the data
       ratingData = data[3]
@@ -511,7 +512,7 @@
       var x = d3.scaleLinear()
         .domain([0, 50])
         .range([0, width]);
-      svg.append("g")
+      g.append("g")
         .attr("transform", "translate(0," + height + ")")
         .call(d3.axisBottom(x));
       
@@ -519,32 +520,29 @@
       var y = d3.scaleLinear()
         .domain( [0, 100])
         .range([ height, 0 ]);
-      svg.append("g")
+      g.append("g")
         .call(d3.axisLeft(y));
       
       // X axis label
       g.append("text")
       .attr("transform",
           "translate(" + (width / 2) + " ," +
-          (height + t2 / 2) + ")")
+          (height + margin.top) + ")")
       .style("text-anchor", "middle")
       .text("Price")
-      .style("font-size", "25px");
+      .style("font-size", "15px");
 
       // Y axis label
       g.append("text")
       .attr("transform", "rotate(-90)")
-      .attr("y", 0 - (l2 * 7))
+      .attr("y", 0 - margin.left)
       .attr("x", 0 - (height / 2))
       .attr("dy", "1em")
       .style("text-anchor", "middle")
       .text("Positive Rating")
-      .style("font-size", "20px");
+      .style("font-size", "15px");
     
-      
-        // TODO remove existing dots and line
-        // svg.selectAll("dot").remove();
-        // svg.select(".scatterpath").remove();
+    
 
         //populate filtered genre data array
         ratingData.forEach((d) => {
@@ -553,9 +551,12 @@
             ratingGenreData.push({price: d.price.replace(/\D/g,''), pos_reviews: d.pos_reviews})
           }
         })
+        // Sort ratingGenreData on price
+        ratingGenreData.sort((a, b) => {return a.price - b.price})
+
 
         // Add the scatterplot line
-        svg.append("path")
+        g.append("path")
           .datum(ratingGenreData)
           .attr("fill", "none")
           .attr("stroke", "#69b3a2")
@@ -567,7 +568,7 @@
             )
       
         // Add the points
-        svg
+        g
           .append("g")
           .selectAll("dot")
           .data(ratingGenreData)
@@ -617,8 +618,8 @@
       var mousemove = function (d) {
         tooltip
         .style("transform","translateY(-55%)")  
-        .style("left", d.pageX + document.getElementsByTagName('body')[0].clientWidth * 0.01 + "px")
-        .style("top", d.pageY + document.getElementsByTagName('body')[0].clientWidth * 0.03 + "px")
+        .style("left", d.pageX + document.getElementsByTagName('body')[0].clientWidth * 0.003 + "px")
+        .style("top", d.pageY - document.getElementsByTagName('body')[0].clientHeight * 0.015 + "px")
       }
       var mouseleave = function (d) {
         tooltip
@@ -908,8 +909,8 @@
         var count = data.count
         tooltip
           .style("transform","translateY(-55%)")  
-          .style("left", d.pageX + document.getElementsByTagName('body')[0].clientWidth * 0.01 + "px")
-          .style("top", d.pageY - document.getElementsByTagName('body')[0].clientWidth * 0.02 + "px")
+          .style("left", d.pageX + document.getElementsByTagName('body')[0].clientWidth * 0.003 + "px")
+          .style("top", d.pageY - document.getElementsByTagName('body')[0].clientHeight * 0.015 + "px")
           .html("Positive Reviews: " + ((pos_reviews < 1) ? 'N/A' : "<b>" + pos_reviews + "</b>%") +
             " | Games: <b>" + count + "</b>")
       }
@@ -1085,7 +1086,7 @@
           <svg id="svg_heat_map" class="svg_graph"></svg>
         </div>
         <div id="scatterplot_price" style="display: none;">
-          <svg id="scatterplot_price"></svg>
+          <svg id="svg_scatterplot_price" class="svg_graph"></svg>
         </div>
     </div>
   </div>
