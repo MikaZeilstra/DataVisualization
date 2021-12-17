@@ -1,16 +1,18 @@
 function create_stacked_bar_chart(selector) {
-    //Set the viewport and margins
 
+    //Set the viewport size and margins
     const viewport_width = 1000;
     const viewport_height = 1000;
-    //Set the viewport and margins
-    const margin_left = 70;
-    const margin_top = 80;
-    const margin_bottom = 140;
-
+    const margin = {
+        left : 70,
+        right : 70,
+        bottom : 140,
+        top : 80
+    }
 
     const svg = d3.select(selector);
 
+    // Create tooltip element and append to svg
     let tooltipNode = document.createElement("div")
     document.querySelector(selector).parentNode.appendChild(tooltipNode)
     let tooltip = d3.select(tooltipNode)
@@ -24,50 +26,55 @@ function create_stacked_bar_chart(selector) {
         .style("border-width", "0.1ch")
         .style("border-radius", "0.5ch");
 
-    var mouseover = function (d) {
+    var mouseover = function (d) { // On mouseover show the game title and relevant playtime + make visible
         let data = d3.select(d.target).datum();
         var game = data.game;
         var val = data.val;
         tooltip
             .html("Game : <b>" + game + "</b><br>Playtime in hours: <b>" + Math.ceil(val / 60) + "</b>")
             .style("opacity", 1)
-        d3.selectAll("." + d.target.getAttribute("class").split(" ")[0]).style("filter", "brightness(0.5)");
+        // Responsible for the visualizations in other connected graphs by searching for elements 
+        // in certain class and updating their brightness
+        d3.selectAll("." + d.target.getAttribute("class").split(" ")[0]).style("filter", "brightness(0.5)"); 
     }
 
-    var mousemove = function (d) {
+    var mousemove = function (d) { // Move the tooltip when mouse is moved + add some relative offset
         tooltip
             .style("transform", "translateY(-55%)")
             .style("left", d.pageX + document.getElementsByTagName('body')[0].clientWidth * 0.003 + "px")
             .style("top", d.pageY - document.getElementsByTagName('body')[0].clientHeight * 0.03 + "px")
     }
-    var mouseleave = function (d) {
+    var mouseleave = function (d) { // Hide the tooltip when mouse leaves the element
         tooltip
             .style("opacity", 0)
         d3.selectAll("." + d.target.getAttribute("class").split(" ")[0]).style("filter", "brightness(1)");
     }
 
-    var mouseClick = function (d) {
+    var mouseClick = function (d) { // On click switch to relevant page
         handle_submit(d.target.getAttribute("data-genre"))
         d3.selectAll("." + d.target.getAttribute("class").split(" ")[0]).style("filter", "brightness(1)");
     }
 
+    // Set the viewbox of the svg and calculate the actual width of the graph
     svg.attr("viewBox", `0 0 ${viewport_width} ${viewport_height}`);
 
-    const width = viewport_width - 2 * margin_left;
-    const height = viewport_height - margin_top - margin_bottom;
+    const width = viewport_width - margin.left - margin.right;
+    const height = viewport_height - margin.top - margin.bottom;
 
     //Make the group element which contains the bars
     const g = svg.append('g')
-        .attr('transform', `translate(${margin_left} , ${margin_top})`);
+        .attr('transform', `translate(${margin.left} , ${margin.top})`);
 
 
-
-    //Create axes which fit our box exactly
+    // Fit scale to width and height of the svg
     const xscale = d3.scaleBand().range([0, width]);
     const yscale = d3.scaleLinear().range([0, height]);
 
+    // Create x-axis from scale and append
     const xaxis = d3.axisBottom().scale(xscale);
     const g_xaxis = g.append('g').attr('class', 'x axis').style("font-size", "20px");
+
+    // Create y-axis from scale and append
     const yaxis = d3.axisLeft().scale(yscale).tickFormat(function (d) {
         return d + "%"
     });
@@ -77,7 +84,7 @@ function create_stacked_bar_chart(selector) {
     g.append("text")
         .attr("transform",
             "translate(" + (width / 2) + " ," +
-            (height + margin_top * 1.4) + ")")
+            (height + margin.top * 1.4) + ")")
         .style("text-anchor", "middle")
         .text("Groups")
         .style("font-size", "25px");
@@ -85,7 +92,7 @@ function create_stacked_bar_chart(selector) {
 
     //Update function to be retured
     function update(new_data, labels, title) {
-        // Graph title
+        // Update graph title
         g.select(".title").remove()
         g.append("text")
             .attr("class", "title")
@@ -96,28 +103,27 @@ function create_stacked_bar_chart(selector) {
             .style("font-family", "arial")
             .text(title)
 
-
+        // Set the scales of the x and y-axis and transition to the new axis
         xscale.domain(labels).padding(0.1);
         yscale.domain([100, 0]);
-
 
         g_xaxis.transition().attr("transform", "translate(0," + height + ")").call(xaxis);
         g_xaxis.selectAll("text").attr("transform", "rotate(25)").style("text-anchor", "start");;
         g_yaxis.transition().call(yaxis);
 
+        
         posible_subgroups = [].concat.apply([], new_data).map((e) => e.game).filter((v, i, s) => s.indexOf(v) === i)
         let color = d3.scaleOrdinal().domain(posible_subgroups).range(posible_subgroups.map((v, i, s) => d3.color(
             "hsl(" + i / s.length * 360 + ",70%,50%)")));
-        //Get bars and add bars if require
-
-
+        
+        //Get bars and add bars if required
         let bar_groups = g.selectAll(".bar_group").data(new_data);
-
 
         let bar_groups_enter = bar_groups.enter().append("g").attr("class", "bar_group");
 
         let bars = bar_groups.merge(bar_groups_enter).selectAll("rect").data((d) => d)
-
+        
+        // Add the individual child bars to the stacked bar chart
         let bar_enter = bars.enter().append("rect")
             .attr('x', (d) => xscale(d.label))
             .attr('y', 0)
@@ -137,8 +143,8 @@ function create_stacked_bar_chart(selector) {
             .attr('width', (d) => xscale.bandwidth(d.label))
             .attr('fill', (d) => color(d.game))
             .attr('hover-tooltip', (d) => d.game + " : " + d.val)
-            .attr('data-genre', (d) => d.game)
-            .attr('class', (d) => 'bar_chart_bar_' + d.game.replace(/\W/g, ''))
+            .attr('data-genre', (d) => d.game) // set data-genre (needed for switching later)
+            .attr('class', (d) => 'bar_chart_bar_' + d.game.replace(/\W/g, '')) // Replace non-text/ number characters with ''
             .attr('x', (d) => xscale(d.label))
 
         //Remove unecesary bars
@@ -155,19 +161,20 @@ function create_scatterplot(selector) {
         // Set viewport and margins
         const viewport_width = 500;
         const viewport_height = 400;
-
         const margin = {
-            top: 40,
             left: 100,
+            right: 70,
             bottom: 80,
-            right: 70
+            top: 40
         }
+        
 
         var svg = d3.select(selector)
 
         // Remove all contents
         d3.select(selector).selectAll("*").remove();
 
+        // Set the viewbox of the svg and calculate the actual width of the graph
         svg.attr("viewBox", `0 0 ${viewport_width} ${viewport_height}`);
 
         const width = viewport_width - margin.left - margin.right
@@ -216,12 +223,11 @@ function create_scatterplot(selector) {
             .style("font-size", "15px");
 
 
-
-        //populate filtered genre data array
+        // Populate filtered genre data array
         ratingData.forEach((d) => {
             if (d.genre == selectedGenre) {
                 ratingGenreData.push({
-                    price: d.price.replace(/\D/g, ''),
+                    price: d.price.replace(/\D/g, ''), // Replaces no digit characters with ''
                     pos_reviews: d.pos_reviews
                 })
             }
@@ -239,7 +245,7 @@ function create_scatterplot(selector) {
             .attr("stroke", "#69b3a2")
             .attr("stroke-width", 1.5)
             .attr('class', 'scatterpath')
-            .attr("d", d3.line()
+            .attr("d", d3.line() 
                 .x(function (d) {
                     return x(d.price)
                 })
@@ -269,18 +275,20 @@ function create_scatterplot(selector) {
 
 //This function creates setsup the bar chart by providing a update function
 function create_bar_chart(selector) {
-    //Set the viewport and margins
+    //Set the viewport size and margins
     const viewport_width = 500;
     const viewport_height = 400;
     const margin = {
-        top: 60,
         left: 100,
+        right: 70,
         bottom: 90,
-        right: 70
+        top: 60
     }
 
 
     const svg = d3.select(selector);
+
+    // Create tooltip element and append to svg
     let tooltipNode = document.createElement("div")
     document.querySelector(selector).parentNode.appendChild(tooltipNode)
     let tooltip = d3.select(tooltipNode)
@@ -294,29 +302,32 @@ function create_bar_chart(selector) {
         .style("border-width", "0.1ch")
         .style("border-radius", "0.5ch");
 
-    var mouseover = function (d) {
-        tooltip
+    var mouseover = function (d) { // On mouseover show the game title and relevant playtime + make visible
+            tooltip
             .html("Value : <b>" + d3.select(d.target).datum() + "</b>")
             .style("opacity", 1)
+        // Responsible for the visualizations in other connected graphs by searching for elements 
+        // in certain class and updating their brightness
         d3.selectAll("." + d.target.getAttribute("class").split(" ")[0]).style("filter", "brightness(0.5)");
     }
-    var mousemove = function (d) {
+    var mousemove = function (d) { // Move the tooltip when mouse is moved + add some relative offset
         tooltip
             .style("transform", "translateY(-55%)")
             .style("left", d.pageX + document.getElementsByTagName('body')[0].clientWidth * 0.003 + "px")
             .style("top", d.pageY - document.getElementsByTagName('body')[0].clientHeight * 0.015 + "px")
     }
-    var mouseleave = function (d) {
+    var mouseleave = function (d) { // Hide the tooltip when mouse leaves the element
         tooltip
             .style("opacity", 0)
         d3.selectAll("." + d.target.getAttribute("class").split(" ")[0]).style("filter", "brightness(1)");
     }
 
-    var mouseClick = function (d) {
+    var mouseClick = function (d) { // On click switch to relevant page
         handle_submit(d.target.getAttribute("data-label"))
         d3.selectAll("." + d.target.getAttribute("class").split(" ")[0]).style("filter", "brightness(1)");
     }
 
+    // Set the viewbox of the svg and calculate the actual width of the graph
     svg.attr("viewBox", `0 0 ${viewport_width} ${viewport_height}`);
 
     const width = viewport_width - margin.left - margin.right;
@@ -327,12 +338,15 @@ function create_bar_chart(selector) {
         .attr('transform', `translate(${margin.left} , ${margin.top})`);
 
 
-    //Create axes which fit our box exactly
+    // Fit scale to width and height of the svg
     const xscale = d3.scaleBand().range([0, width]);
     const yscale = d3.scaleLinear().range([0, height]);
 
+    // Create x-axis from scale and append
     const xaxis = d3.axisBottom().scale(xscale);
     const g_xaxis = g.append('g').attr('class', 'x axis');
+
+    // Create y-axis from scale and append
     const yaxis = d3.axisLeft().scale(yscale).tickFormat(function (e) {
         if (Math.floor(e) != e) {
             return;
@@ -363,6 +377,7 @@ function create_bar_chart(selector) {
     //Update function to be retured
     function update(new_data, labels, title, yaxis_t, xaxis_t, ylabel_loc = margin.left, xlabel_loc = margin.top) {
 
+        // Update graph title
         g.select(".title").remove()
         g.append("text")
             .attr("class", "title")
@@ -373,11 +388,12 @@ function create_bar_chart(selector) {
             .style("font-family", "arial")
             .text(title)
 
+        // Update x-axis label and y-axis label
         g.select("#bar_chart_x_label").text(xaxis_t).attr("y", height + xlabel_loc)
         g.select("#bar_chart_y_label").text(yaxis_t).attr("y", 0 - ylabel_loc)
 
 
-        //Create the axis with the new data.
+        // Set the scales of the x and y-axis and transition to the new axis
         xscale.domain(labels).padding(0.1);
         yscale.domain([d3.max(new_data), 0]);
 
@@ -385,7 +401,6 @@ function create_bar_chart(selector) {
         g_xaxis.transition().attr("transform", "translate(0," + height + ")").call(xaxis);
         g_xaxis.selectAll("text").attr("transform", "rotate(25)").style("text-anchor", "start");;
         g_yaxis.transition().call(yaxis);
-
 
         //Get bars and add bars if required
         const bars = g.selectAll("rect").data(new_data);
@@ -395,7 +410,7 @@ function create_bar_chart(selector) {
             .attr('y', height)
             .attr('width', xscale.bandwidth())
             .attr('height', 0)
-            .attr('class', (d) => 'bar_chart_bar_' + labels[new_data.indexOf(d)].replace(/\W/g, '') + " bar_chart_bar")
+            .attr('class', (d) => 'bar_chart_bar_' + labels[new_data.indexOf(d)].replace(/\W/g, '') + " bar_chart_bar") // Set relevant class to make hover interactivity possible
             .on("mouseover", mouseover)
             .on("mousemove", mousemove)
             .on("mouseleave", mouseleave)
@@ -407,7 +422,7 @@ function create_bar_chart(selector) {
             .attr("y", (d) => (yscale(d)))
             .attr('width', xscale.bandwidth())
             .attr('x', (d) => xscale(labels[new_data.indexOf(d)]))
-            .attr('class', (d) => 'bar_chart_bar_' + labels[new_data.indexOf(d)].replace(/\W/g, '') + " bar_chart_bar")
+            .attr('class', (d) => 'bar_chart_bar_' + labels[new_data.indexOf(d)].replace(/\W/g, '') + " bar_chart_bar") // Set relevant class to make hover interactivity possible
             .attr("data-label", (d) => labels[new_data.indexOf(d)])
         //Remove unecesary bars
         bars.exit().remove();
@@ -418,26 +433,32 @@ function create_bar_chart(selector) {
 
 function create_pie_chart(selector) {
 
+    // Set the viewport size and margin
     const viewport_width = 300;
     const viewport_height = 300;
-
-    const margin_left = 30;
-    const margin_top = 80;
-
+    const margin = {
+        left : 30, 
+        right : 30,
+        top : 80,
+        bottom : 80
+    }
 
     const svg = d3.select(selector);
 
+    // Set the viewbox of the svg and calculate the actual width of the graph
     svg.attr("viewBox", `0 0 ${viewport_width} ${viewport_height}`);
 
-    const width = viewport_width - 2 * margin_left;
-    const height = viewport_height - 2 * margin_top;
+    const width = viewport_width - margin.left - margin.right;
+    const height = viewport_height - margin.top - margin.bottom;
 
     //Make the group element which contains the bars
     const g = svg.append('g')
-        .attr('transform', 'translate(' + width / 2 + ',' + (height / 2 + margin_top) + ')')
+        .attr('transform', 'translate(' + width / 2 + ',' + (height / 2 + margin.top) + ')')
 
+    // Define color scale
     var color = d3.scaleOrdinal(d3.schemeSet3);
 
+    // Determine outer radius (and specify inner)
     var min = Math.min(width, height);
     var oRadius = min / 2 * 0.9;
     var iRadius = 0;
@@ -454,11 +475,12 @@ function create_pie_chart(selector) {
 
 
     function update(new_data, title) {
-        // Remove current title and add new one
+
+        // Update graph title
         g.select(".title").remove()
         g.append("text")
             .attr("class", "title")
-            .attr("y", -margin_top)
+            .attr("y", -margin.top)
             .attr("text-anchor", "middle")
             .style("font-size", "30px")
             .style("font-family", "arial")
@@ -503,78 +525,19 @@ function create_pie_chart(selector) {
 }
 
 function createHeatMap(selector) {
-
+    //Set the viewport size and margins
     const viewport_width = 1000;
     const viewport_height = 900;
-    //Set the viewport and margins
-    const margin_left = 200;
-    const margin_top = 100;
-
+    const margin = {
+        left : 200,
+        right : 100,
+        bottom : 100,
+        top : 100
+    }
+    
     const svg = d3.select(selector)
 
-    svg.attr("viewBox", `0 0 ${viewport_width} ${viewport_height}`);
-
-    const width = viewport_width - 2 * margin_left;
-    const height = viewport_height - 2 * margin_top;
-
-    //Make the group element which contains the bars
-    const g = svg.append('g')
-        .attr('transform', `translate(${margin_left} , ${margin_top})`);
-
-    //Read the data
-    ratingData = data[3]
-    var myPrice = []
-    var myGenres = []
-    // Labels of row and columns -> unique identifier of the column called 'price' and 'genre'
-    ratingData.forEach((d) => {
-        myPrice.push(d.price)
-        myGenres.push(d.genre)
-    })
-
-    // Build X scales and axis:
-    var x = d3.scaleBand()
-        .range([0, width])
-        .domain(myPrice)
-        .padding(0.01);
-    g.append("g")
-        .attr("transform", "translate(0," + height + ")")
-        .call(d3.axisBottom(x))
-        .style("font-size", "20px")
-
-
-    // X axis label
-    g.append("text")
-        .attr("transform",
-            "translate(" + (width / 2) + " ," +
-            (height + margin_top / 2) + ")")
-        .style("text-anchor", "middle")
-        .text("Price")
-        .style("font-size", "25px");
-
-    // Build Y scales and axis:
-    var y = d3.scaleBand()
-        .range([height, 0])
-        .domain(myGenres)
-        .padding(0.01);
-    g.append("g")
-        .call(d3.axisLeft(y))
-        .style("font-size", "15px");
-
-    // Y axis label
-    g.append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 0 - margin_left)
-        .attr("x", 0 - (height / 2))
-        .attr("dy", "1em")
-        .style("text-anchor", "middle")
-        .text("Value")
-        .style("font-size", "20px");
-
-    // Build color scale
-    var myColor = d3.scaleSequential()
-        .interpolator(d3.interpolateSpectral)
-        .domain([1, 100])
-
+    // Create tooltip element and append to svg
     let tooltipNode = document.createElement("div")
     document.querySelector(selector).parentNode.appendChild(tooltipNode)
     let tooltip = d3.select(tooltipNode)
@@ -609,6 +572,70 @@ function createHeatMap(selector) {
         tooltip.style("opacity", 0)
     }
 
+    // Set the viewbox of the svg and calculate the actual width of the graph
+    svg.attr("viewBox", `0 0 ${viewport_width} ${viewport_height}`);
+
+    const width = viewport_width - margin.left - margin.right;
+    const height = viewport_height - margin.top - margin.bottom;
+
+    //Make the group element which contains the bars
+    const g = svg.append('g')
+        .attr('transform', `translate(${margin.left} , ${margin.top})`);
+
+    //Read the data
+    ratingData = data[3]
+    var myPrice = []
+    var myGenres = []
+    // Labels of row and columns -> unique identifier of the column called 'price' and 'genre'
+    ratingData.forEach((d) => {
+        myPrice.push(d.price)
+        myGenres.push(d.genre)
+    })
+
+    // Build X scales and axis:
+    var x = d3.scaleBand()
+        .range([0, width])
+        .domain(myPrice)
+        .padding(0.01);
+    g.append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x))
+        .style("font-size", "20px")
+
+
+    // X axis label
+    g.append("text")
+        .attr("transform",
+            "translate(" + (width / 2) + " ," +
+            (height + margin.top / 2) + ")")
+        .style("text-anchor", "middle")
+        .text("Price")
+        .style("font-size", "25px");
+
+    // Build Y scales and axis:
+    var y = d3.scaleBand()
+        .range([height, 0])
+        .domain(myGenres)
+        .padding(0.01);
+    g.append("g")
+        .call(d3.axisLeft(y))
+        .style("font-size", "15px");
+
+    // Y axis label
+    g.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - margin.left)
+        .attr("x", 0 - (height / 2))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Value")
+        .style("font-size", "20px");
+
+    // Build color scale
+    var myColor = d3.scaleSequential()
+        .interpolator(d3.interpolateSpectral)
+        .domain([1, 100])
+
     // add the squares
     g.selectAll()
         .data(ratingData, function (d) {
@@ -624,11 +651,11 @@ function createHeatMap(selector) {
         })
         .attr("width", x.bandwidth())
         .attr("height", y.bandwidth())
-        .attr('class', (d) => 'bar_chart_bar_' + d.genre.replace(/\W/g, ''))
-        .style("opacity", (d) => (d.pos_reviews < 1) ? "0.3" : "1")
+        .attr('class', (d) => 'bar_chart_bar_' + d.genre.replace(/\W/g, '')) // Set relevant class to make hover interactivity possible
+        .style("opacity", (d) => (d.pos_reviews < 1) ? "0.3" : "1") // Set the opacity to 0.3 if there are no positive reviews
         .style("fill", function (d) {
-            return myColor((d.pos_reviews < 1) ? NaN : d.pos_reviews)
-        }) //In order for empty entries to be black
+            return myColor((d.pos_reviews < 1) ? NaN : d.pos_reviews) 
+        }) // In order for empty entries to be black
         .on("mouseover", mouseover)
         .on("mousemove", mousemove)
         .on("mouseleave", mouseleave)
