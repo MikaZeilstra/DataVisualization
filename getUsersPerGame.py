@@ -2,7 +2,7 @@ import json
 import ast
 
 with open("UserOwnedGames.json","r") as file:
-	UserOwnedGames = ast.literal_eval(file.read());
+	UserOwnedGames = ast.literal_eval(file.read())
 
 
 #print(UserOwnedGames)

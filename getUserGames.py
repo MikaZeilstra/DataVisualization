@@ -4,7 +4,7 @@ import ast
 from time import sleep
 
 with open("UserIDs.json","r") as file:
-	userIds = ast.literal_eval(file.read());
+	userIds = ast.literal_eval(file.read())
 UserOwnedGames = {}
 
 key = "key=INSERTSTEAMAPIKEYHERE"

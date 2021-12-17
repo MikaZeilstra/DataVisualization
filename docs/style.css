@@ -1,7 +1,4 @@
-* {
-  --Searchsize: 10vh;
-}
-
+/*General webpage styling*/
 body {
   background-color: #c7d5e0;
   color: #171a21;
@@ -31,32 +28,6 @@ body {
   display: none;
   width: inherit;
   height: 8vh;
-}
-
-.charts {
-  width: inherit;
-}
-
-#stacked_bar_chart {
-  width: 50%;
-  height: 100%;
-  display: flex;
-  float: right;
-  align-items: center;
-  flex-direction: column;
-}
-
-#svg_stacked_bar_chart {
-  width: 70%;
-  height: 100%
-}
-
-#stacked_bar_chart_N {
-  width: 5vw;
-  height: 4vh;
-  font-size: 4vh;
-  padding: 1vh;
-  border-width: 0.3vh;
 }
 
 #datadiv {
@@ -129,10 +100,6 @@ body {
   transform: translate(-50%, -50%);
 }
 
-/* list-options-search {
-  position: relative;
-} */
-
 /*Resize the wrap to see the search bar change!*/
 .wrap {
   background-color: #171a21;
@@ -141,24 +108,6 @@ body {
   display: flex;
   align-items: center;
   min-height: 2vh;
-}
-
-[error-tooltip]:before {
-  /* needed - do not touch */
-  content: attr(error-tooltip);
-  top: 19vh;
-  width: 46vw;
-  position: absolute;
-  /* customizable */
-  transition: all 0.5s ease;
-  padding: 1vw 1vh;
-  color: #333;
-  border-radius: 10px;
-
-  /* customizable */
-  background: crimson;
-  margin-top: -8vh;
-  margin-left: 0;
 }
 
 #page_header {
@@ -212,6 +161,52 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/*Error tooltip styling*/
+[error-tooltip]:before {
+
+  content: attr(error-tooltip);
+  top: 19vh;
+  width: 46vw;
+  position: absolute;
+
+  transition: all 0.5s ease;
+  padding: 1vw 1vh;
+  color: #333;
+  border-radius: 10px;
+
+
+  background: crimson;
+  margin-top: -8vh;
+  margin-left: 0;
+}
+
+/*Chart styling*/
+.charts {
+  width: inherit;
+}
+
+#stacked_bar_chart {
+  width: 50%;
+  height: 100%;
+  display: flex;
+  float: right;
+  align-items: center;
+  flex-direction: column;
+}
+
+#svg_stacked_bar_chart {
+  width: 70%;
+  height: 100%
+}
+
+#stacked_bar_chart_N {
+  width: 5vw;
+  height: 4vh;
+  font-size: 4vh;
+  padding: 1vh;
+  border-width: 0.3vh;
 }
 
 #pie_chart_rev {

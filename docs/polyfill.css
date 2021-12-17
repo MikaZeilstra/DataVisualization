@@ -1,4 +1,4 @@
-
+/*This file contains styling for the polyfill dropdown*/
 label {
 	display: block;
 }
@@ -58,10 +58,6 @@ input[data-optgroup-list] + datalist + .list-options > ul .option:hover {
 input[data-optgroup-list] + datalist + .list-options > ul ul li {
 	padding-left: 0.5vw;
 }
-
-/* input[data-optgroup-list] + datalist + .list-options > ul ul li:not([hidden]) {
-	display: flex;
-} */
 
 
 input[data-optgroup-list] + datalist + .list-options ul {

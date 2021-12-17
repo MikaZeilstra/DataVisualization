@@ -262,6 +262,7 @@
         }
 
       })
+      //Remove genre tags if the game doesnt have genres
       if (nr_genres != 0) {
         d3.select("#tags").attr("style", "display:flex")
       } else {
@@ -289,9 +290,9 @@
       update_bar_chart(data[1][game]["user_count"], Object.keys(data[0]), "Number of players in each group", "Users",
         "Groups", 40, 70);
       //Update review chart
-      update_pie_chart_reviews(prepare_dict(data[1][game], ['positive_reviews', 'negative_reviews']), "Review score")
+      update_pie_chart_reviews(wrangle_pie_chart(data[1][game], ['positive_reviews', 'negative_reviews']), "Review score")
       //Set data for user played pie chart
-      var user_cp = prepare_dict(data[1][game], ['user_count', 'user_played'])
+      var user_cp = wrangle_pie_chart(data[1][game], ['user_count', 'user_played'])
       var ar = []
       ar[0] = {
         name: "Own and play",
@@ -304,13 +305,17 @@
 
       //Update Pie chart 
       update_pie_chart_play_own(ar, "Play score")
-      //Update 
+      //Update the page header to the game
       d3.select("#page_header").html(game);
     }
 
-    function prepare_dict(data, keys) {
+    //Wrangles the data for the pie chart
+    function wrangle_pie_chart(data, keys) {
+      //Init array for all new data objects
       var ar = []
+      //Select values from the data based on provided keys
       for (const key of keys) {
+        //Create new object to contain nessecary data
         const dict = {}
         dict["name"] = key
         var val = data[key]
@@ -318,6 +323,7 @@
           val = val.reduce((a, b) => a + b, 0)
         }
         dict["value"] = val
+        //Add new object to data array
         ar.push(dict)
       }
       return ar
@@ -338,29 +344,36 @@
         "Top 10 most popular games in " + genre, "Total time played in minutes", "Game titles") // Set the correct axis titles and title of the bar_chart
 
       // Update the pie chart with the relevant review scores and set the title
-      update_pie_chart_reviews(prepare_dict(data[2][genre], ['positive_total', 'negative_total']), "Review score") 
+      update_pie_chart_reviews(wrangle_pie_chart(data[2][genre], ['positive_total', 'negative_total']), "Review score") 
 
-      // Set the Event 
+      //Setup input listener for the input asigning how many games in stacked bar chart
       document.getElementById("stacked_bar_chart_N").addEventListener("input", (e) => update_stacked_bar_chart(
         wrangle_stacked_bar_chart(Object.values(data[1]).filter((f) => f.tags.includes(genre)), "name"), Object
         .keys(data[0]), "Fraction of top N games for " + genre + " per group"));
+      
+      //wrangle the stacked bar data and update
       update_stacked_bar_chart(wrangle_stacked_bar_chart(Object.values(data[1]).filter((f) => f.tags.includes(genre)),
         "name"), Object.keys(data[0]), "Fraction of top N games for " + genre + " per group");
+      //update the scatterplot to the new genre
       update_scatterplot(genre)
 
     }
 
-    //This function creates setsup the bar chart by providing a update function
+    //This function rewrites the provided data such that it is suitable for the stacked bar chart
     function wrangle_stacked_bar_chart(bar_data, sub_label_field) {
-      //Wrangle data
+      //Retrieve the how many elements we should return
       let N = parseInt(document.getElementById("stacked_bar_chart_N").value)
+      //Create and array for each group and map it to the top N data for that group
       let group_top_data = Array(Object.keys(data[0]).length).fill(undefined).map((d, i) => getGameTopNPlayTime(
-        bar_data, (d) => d.user_minutes[i], N))
+        bar_data, (d) => d.user_minutes[i], N));
+      
+      //Set labels to group labels and initialize the array which will hold the data with a dummy data element.
       let group_labels = Object.keys(data[0]);
       let group_data = Array(group_labels.length).fill(0).map((e) => [{
         cum_sum: 0
       }]);
 
+      //Loop over all the group top N data and add it to the new array while calculating the cumulative sum required for the height of the bar.
       for (let i = 0; i < group_top_data.length; i++) {
         for (let j = 0; j < group_top_data[i].length; j++) {
           group_data[i].push({
@@ -371,6 +384,7 @@
           })
         }
       }
+      //Remove the dummy element from each group, set the total sum and return the reformatted data 
       group_data.map((e) => e.shift())
       group_data.forEach((r, i) => r.forEach((e) => e.total_sum = group_data[i][group_data[i].length - 1].cum_sum))
       return group_data;
@@ -380,31 +394,40 @@
     // and then calling the appropriate page updater
     function handle_submit(option) {
       if (Object.keys(data[2]).includes(option)) { // The data[2] array has as keys the genres
+        //Cleanup if required
         if (current_page_type != Page_type.Genre) { 
           cleanup_page();
         }
         document.getElementById("search_all").removeAttribute("error-tooltip"); // Remove the error-tooltip if a valid input is given
+        //Update page
         update_page_to_new_genre(option);
         current_page_type = Page_type.Genre;
       } else if (Object.keys(data[0]).includes(option)) { // The data[0] array has games as keys
+        //Cleanup if required
         if (current_page_type != Page_type.Group) {
           cleanup_page();
         }
-        document.getElementById("search_all").removeAttribute("error-tooltip");
+        document.getElementById("search_all").removeAttribute("error-tooltip");// Remove the error-tooltip if a valid input is given
+        //Update page
         update_page_to_new_group(option);
         current_page_type = Page_type.Group;
       } else if (Object.keys(data[1]).includes(option)) { // The data[1] array has the country names as keys
+        //Cleanup if required
         if (current_page_type != Page_type.Game) {
           cleanup_page();
         }
-        document.getElementById("search_all").removeAttribute("error-tooltip");
+        
+        document.getElementById("search_all").removeAttribute("error-tooltip");// Remove the error-tooltip if a valid input is given
+        //Update page
         update_page_to_new_game(option);
         current_page_type = Page_type.Game;
       } else if (Object.keys(data[2]).includes(option)) {
+        //Cleanup if required
         if (current_page_type != Page_type.Genre) {
           cleanup_page();
         }
-        document.getElementById("search_all").removeAttribute("error-tooltip");
+        document.getElementById("search_all").removeAttribute("error-tooltip");// Remove the error-tooltip if a valid input is given
+        //Update page
         update_page_to_new_genre(option);
         current_page_type = Page_type.Genre;
       }
@@ -415,7 +438,7 @@
       }
     }
 
-    // Cleanup the current page before loading new content
+    // Cleanup the current page before loading new content by hiding all the page elements that the page unhid
     function cleanup_page() {
       if (current_page_type == Page_type.Landing) {
         document.getElementById("stacked_bar_chart").setAttribute("style", "display:none;");
@@ -443,14 +466,18 @@
     }
   </script>
 </head>
-
+<!--Start of Page-->
 <body style="background-color:#c7d5e0">
+
+  <!--Searchbox-->
   <div class="wrap">
     <div id="home_box" style="margin-left:9%;margin-right: 9%; width: 7%;align-items: center;display:flex;">
       <button id="homeButton" onclick="cleanup_page();update_page_to_landing()">
         <i class="fa fa-home" style="color: white; font-size: 6vh;"></i>
       </button>
     </div>
+
+    <!--Actual Searchbar with optgroups-->
     <form class="search_all" id="search_all" onsubmit='handle_submit(document.getElementById("input_field").value)'>
       <input data-optgroup-list="search_options" class="searchTerm" id="input_field" type="select"></input>
       <datalist id="search_options">
@@ -460,8 +487,8 @@
       </datalist>
       <div class="list-options" id="list-options-search" hidden>
       </div>
-      <!-- <input type="text" class="searchTerm" placeholder="What are you looking for?"> -->
       <button type="submit" class="searchButton" id=searchButton onclick="handle_submit()" height="100%">
+        <!--Looking glass icon-->
         <svg id="svg_button" class="search-icon" viewBox="0 0 24 24">
           <path
             d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
@@ -470,6 +497,8 @@
       </button>
     </form>
   </div>
+
+  <!--Content consiting of all the graphs hidden by default-->
   <div class="main" id="main">
     <div id="g_summary">
       <div id="game_image" style="display: none;"><img id="banner"></div>
